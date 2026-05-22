@@ -3,7 +3,7 @@
    ======================================== */
 
 const AppState = {
-  currentPage: 'spread-select', selectedSpread: null, drawMode: null,
+  currentPage: 'welcome', selectedSpread: null, drawMode: null,
   question: '', context: '', drawnCards: [], readingResult: null,
 };
 
@@ -14,8 +14,16 @@ function navigateTo(pageName) {
   if (target) { target.classList.add('active'); AppState.currentPage = pageName; }
   document.querySelectorAll('.nav-btn').forEach(btn => {
     const bp = btn.dataset.page;
-    btn.classList.toggle('active', bp === pageName || (pageName === 'question' && bp === 'spread-select') || (pageName === 'reveal' && bp === 'spread-select'));
+    const isActive = bp === pageName ||
+      (pageName === 'question' && bp === 'spread-select') ||
+      (pageName === 'reveal' && bp === 'spread-select') ||
+      (pageName === 'draw-circle' && bp === 'spread-select') ||
+      (pageName === 'draw-number' && bp === 'spread-select');
+    btn.classList.toggle('active', isActive);
   });
+  // Hide nav on welcome page
+  const nav = document.querySelector('.app-nav');
+  if (nav) nav.style.display = pageName === 'welcome' ? 'none' : 'flex';
   document.querySelector('.app-content').scrollTop = 0;
   if (pageName === 'spread-select') renderSpreadGrid();
   if (pageName === 'history') renderHistory();
@@ -75,6 +83,8 @@ function initNumberDraw() {
   const confirmBtn = document.getElementById('btn-confirm-numbers');
   if (!spread || !container) return;
   info.textContent = spread.cardCount;
+  const infoZh = document.getElementById('num-needed-zh');
+  if (infoZh) infoZh.textContent = spread.cardCount;
   container.innerHTML = Array.from({length: spread.cardCount}, (_, i) => `<input type="number" min="1" max="78" placeholder="${i+1}" class="num-input" data-index="${i}">`).join('');
   const checkInputs = () => {
     const vals = []; let valid = true;
@@ -173,7 +183,7 @@ function showCardDetail(index) {
     ${meaning.symbolism ? `<div class="card-detail-section"><h4>Symbolism · 象征意象</h4><p>${meaning.symbolism}</p></div>` : ''}
     ${meaning.story ? `<div class="card-detail-section"><h4>Lore · 历史典故</h4><p>${meaning.story}</p></div>` : ''}
     ${meaning.cases && meaning.cases.length ? `<div class="card-detail-section"><h4>Cases · 事件案例</h4>${meaning.cases.map(c => `<div class="card-detail-case">${c}</div>`).join('')}</div>` : ''}
-    ${!hasContent ? '<p style="text-align:center;color:var(--text-dim);padding:20px">Content under development</p>' : ''}
+    ${!hasContent ? '<p style="text-align:center;color:var(--text-dim);padding:20px">Content under development · 内容完善中</p>' : ''}
   `;
   document.getElementById('card-modal').classList.add('show');
 }
@@ -190,7 +200,7 @@ async function startAIReading() {
     container.innerHTML = AppState.readingResult;
   } catch (err) {
     console.error('AI reading failed:', err);
-    container.innerHTML = '<p style="text-align:center;color:var(--text-dim)">Reading unavailable. Please try again later.</p>';
+    container.innerHTML = '<p style="text-align:center;color:var(--text-dim)">Reading unavailable. Please try again later.<br>解读服务暂不可用，请稍后重试。</p>';
   }
 }
 
@@ -199,11 +209,11 @@ async function renderHistory() {
   const list = document.getElementById('history-list');
   if (!list) return;
   const records = await getHistoryRecords();
-  if (!records.length) { list.innerHTML = '<p class="empty-hint">No readings yet. Begin your first tarot journey.</p>'; return; }
+  if (!records.length) { list.innerHTML = '<p class="empty-hint">No readings yet. Begin your first tarot journey.<br>暂无记录，开启你的第一次塔罗之旅吧。</p>'; return; }
   list.innerHTML = records.reverse().map(r => `
     <div class="history-item" onclick="viewHistoryDetail('${r.id}')">
       <div class="history-item-time">${new Date(r.timestamp).toLocaleString('zh-CN')}</div>
-      <div class="history-item-question">${r.question || '(No question)'}</div>
+      <div class="history-item-question">${r.question || '(No question · 无提问)'}</div>
       <div class="history-item-spread">${r.spreadName || '?'} · ${r.cards.length} Cards</div>
     </div>`).join('');
 }
@@ -221,7 +231,7 @@ async function viewHistoryDetail(id) {
 }
 
 async function saveCurrentReading() {
-  if (!AppState.readingResult) { showToast('Please wait for the reading to complete'); return; }
+  if (!AppState.readingResult) { showToast('Please wait for the reading to complete · 请等待解读完成'); return; }
   const s = AppState.selectedSpread;
   await saveReadingRecord({
     timestamp: Date.now(), question: AppState.question, context: AppState.context,
@@ -256,6 +266,11 @@ function initApp() {
   new StarField('star-canvas').start();
   renderSpreadGrid();
   setupQuestionPage();
+  // Welcome page — enter button
+  document.getElementById('btn-enter-gate')?.addEventListener('click', () => {
+    TarotAudio.init();
+    navigateTo('spread-select');
+  });
   document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => navigateTo(btn.dataset.page)));
   document.getElementById('btn-back-to-question')?.addEventListener('click', () => navigateTo('question'));
   document.getElementById('btn-back-circle')?.addEventListener('click', () => { TarotCircle.destroy(); navigateTo('question'); });
@@ -265,6 +280,9 @@ function initApp() {
     Object.assign(AppState, { selectedSpread: null, drawMode: null, question: '', context: '', drawnCards: [], readingResult: null });
     navigateTo('spread-select');
   });
+  // Hide nav on welcome page initially
+  const nav = document.querySelector('.app-nav');
+  if (nav) nav.style.display = 'none';
   console.log('🔮 Stellar Oracle ready · 星空之谕已就绪');
 }
 

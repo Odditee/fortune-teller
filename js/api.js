@@ -67,7 +67,7 @@ async function getTarotReading(question, spread, drawnCards, context) {
   } catch (err) {
     console.warn('AI reading failed, using offline fallback:', err.message);
     return `<p style="text-align:center;color:var(--text-accent);margin-bottom:10px;font-family:var(--font-display);">Offline Reading · 离线解读</p>
-<p style="text-align:center;color:var(--text-dim);font-size:0.85rem;margin-bottom:18px;">AI service temporarily unavailable</p>
+<p style="text-align:center;color:var(--text-dim);font-size:0.85rem;margin-bottom:18px;">AI service temporarily unavailable · AI 服务暂不可用</p>
 ${generateFallbackCardSummary()}`;
   }
 }
@@ -83,7 +83,7 @@ function generateFallbackCardSummary() {
     const meaning = dc.isReversed ? card.reversed.meaning : card.upright.meaning;
     html += `<div style="margin-bottom:14px;padding:10px;border-left:2px solid var(--border-accent);padding-left:12px">
       <strong style="color:var(--text-accent)">【${pos ? (pos.nameZh || pos.name) : ''}】${card.name} / ${card.nameEn}（${dc.isReversed ? 'Reversed 逆位' : 'Upright 正位'}）</strong>
-      <p style="margin-top:6px;line-height:1.8">${meaning || 'Content pending...'}</p>
+      <p style="margin-top:6px;line-height:1.8">${meaning || 'Content pending... 内容待补充'}</p>
     </div>`;
   });
   return html;
