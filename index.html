@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tarot · 星空之谕</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <canvas id="star-canvas"></canvas>
+  <div id="app" class="app-container">
+    <header class="app-header">
+      <h1 class="app-title">STELLAR ORACLE</h1>
+      <p class="app-subtitle">— 星空之谕 · Tarot Divination —</p>
+    </header>
+    <main class="app-content">
+      <!-- 牌阵选择 -->
+      <section id="page-spread-select" class="page active">
+        <h2 class="section-title">Choose Your Spread · 选择牌阵</h2>
+        <p class="section-desc">Each spread reveals a different facet of your destiny</p>
+        <div id="spread-grid" class="spread-grid"></div>
+      </section>
+      <!-- 问题输入 -->
+      <section id="page-question" class="page">
+        <h2 class="section-title">What Seek You? · 心中所问</h2>
+        <p class="section-desc">Hold your question in your heart, then write it down</p>
+        <div class="question-area">
+          <textarea id="question-input" class="question-input" placeholder="Write your question here... · 写下你想问的事情……" maxlength="300" rows="3"></textarea>
+          <p class="question-hint">The more you share, the clearer the stars speak<br>描述越清晰，星象越精准</p>
+          <textarea id="context-input" class="context-input" placeholder="Optional: Share the background of your situation... · 选填：分享你所问之事的背景与细节……" maxlength="500" rows="2"></textarea>
+          <div class="selected-spread-info" id="selected-spread-info"></div>
+          <div class="draw-mode-select">
+            <p class="mode-label">Choose your draw method · 选择抽牌方式：</p>
+            <div class="mode-options">
+              <button class="btn btn-mode" data-mode="circle">🔮 Circle Draw · 牌圈抽取</button>
+              <button class="btn btn-mode" data-mode="number">🔢 Number Draw · 数字选牌</button>
+            </div>
+          </div>
+          <button id="btn-start-draw" class="btn btn-primary" disabled>Begin Draw · 开始抽牌</button>
+        </div>
+      </section>
+      <!-- 数字抽牌 -->
+      <section id="page-draw-number" class="page">
+        <h2 class="section-title">Choose by Number · 数字选牌</h2>
+        <p class="section-desc">Select <span id="num-needed">0</span> numbers between 1–78</p>
+        <div id="number-inputs" class="number-inputs"></div>
+        <button id="btn-confirm-numbers" class="btn btn-primary" disabled>Confirm · 确认选牌</button>
+        <button id="btn-back-to-question" class="btn btn-ghost">← Back · 返回</button>
+      </section>
+      <!-- 牌圈抽牌 -->
+      <section id="page-draw-circle" class="page">
+        <div class="circle-header">
+          <h2 class="section-title">Feel the Cards · 感应选牌</h2>
+          <p class="section-desc">Rotate & click the cards that call to you</p>
+          <span id="circle-progress" class="circle-progress">Remaining · 还需：0</span>
+        </div>
+        <div id="circle-container" class="circle-container"></div>
+        <button id="btn-back-circle" class="btn btn-ghost">← Back · 返回</button>
+      </section>
+      <!-- 牌面展示+解读 -->
+      <section id="page-reveal" class="page">
+        <h2 class="section-title">Your Reading · 你的牌阵</h2>
+        <div id="reveal-spread-name" class="reveal-spread-name"></div>
+        <div id="cards-display" class="cards-display"></div>
+        <div class="interpretation">
+          <h3>Interpretation · 综合解读</h3>
+          <div id="ai-reading" class="ai-reading">
+            <div class="loading-spinner"><div class="spinner"></div><p>Connecting to the tarot... 正在感应塔罗的力量……</p></div>
+          </div>
+        </div>
+        <div class="reveal-actions">
+          <button id="btn-save-reading" class="btn btn-primary">Save · 保存记录</button>
+          <button id="btn-new-reading" class="btn btn-ghost">New Reading · 重新占卜</button>
+        </div>
+      </section>
+      <!-- 历史记录 -->
+      <section id="page-history" class="page">
+        <h2 class="section-title">History · 占卜历史</h2>
+        <div id="history-list" class="history-list">
+          <p class="empty-hint">No readings yet. Begin your first tarot journey.</p>
+        </div>
+        <button id="btn-back-to-home" class="btn btn-ghost">← Home · 返回首页</button>
+      </section>
+    </main>
+    <nav class="app-nav">
+      <button class="nav-btn active" data-page="spread-select">Spreads · 牌阵</button>
+      <button class="nav-btn" data-page="history">History · 历史</button>
+    </nav>
+  </div>
+  <div id="toast" class="toast"></div>
+  <!-- 牌面详情弹窗 -->
+  <div id="card-modal" class="card-modal">
+    <div class="card-modal-backdrop" onclick="closeCardModal()"></div>
+    <div class="card-modal-content">
+      <button class="card-modal-close" onclick="closeCardModal()">✕</button>
+      <div id="card-modal-body"></div>
+    </div>
+  </div>
+  <!-- API Key 弹窗 -->
+  <div id="api-modal" class="card-modal">
+    <div class="card-modal-backdrop"></div>
+    <div class="card-modal-content api-setup">
+      <h3 style="color:var(--text-accent);text-align:center;margin-bottom:12px">AI Oracle Key · 设置解读密钥</h3>
+      <p style="color:var(--text-dim);font-size:0.85rem;text-align:center;margin-bottom:16px">
+        Enter your Anthropic API Key to unlock AI-powered readings<br>
+        <a href="https://console.anthropic.com" target="_blank" style="color:var(--text-accent)">Get your key at console.anthropic.com</a>
+      </p>
+      <input type="password" id="api-key-input" class="question-input" placeholder="sk-ant-api-..." style="margin-bottom:12px">
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveAPIKey()">Save · 保存</button>
+        <button class="btn btn-ghost" onclick="skipAPIKey()">Skip · 跳过</button>
+        <button class="btn btn-ghost" onclick="clearAPIKey()" style="font-size:0.8rem">Clear Key · 清除</button>
+      </div>
+      <p id="api-msg" style="text-align:center;margin-top:10px;font-size:0.85rem"></p>
+    </div>
+  </div>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+  </script>
+  <script src="js/cards.js"></script>
+  <script src="js/spreads.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/card-art.js"></script>
+  <script src="js/circle.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
