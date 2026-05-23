@@ -41,33 +41,62 @@ ${spread.descriptionZh || spread.description}
   return p;
 }
 
-async function callDeepSeekAPI(prompt) {
+async function callDeepSeekAPI(prompt, retries = 2) {
   const apiKey = (await getSetting('tarot-api-key')) || TAROT_API_KEY;
-  const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      model: 'deepseek-chat',
-      max_tokens: 1500,
-      temperature: 0.8,
-      messages: [
-        { role: 'system', content: '你是资深塔罗解读师，精通78张牌的含义与典故。解读神秘深刻，温暖有力。始终用中文，用"你"称呼用户。' },
-        { role: 'user', content: prompt },
-      ],
-    }),
-  });
-  if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error?.message || `API Error(${resp.status})`); }
-  const data = await resp.json();
-  return data.choices[0].message.content;
+  let lastError;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+      const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          max_tokens: 1500,
+          temperature: 0.8,
+          messages: [
+            { role: 'system', content: '你是资深塔罗解读师，精通78张牌的含义与典故。解读神秘深刻，温暖有力。始终用中文，用"你"称呼用户。' },
+            { role: 'user', content: prompt },
+          ],
+        }),
+      });
+      clearTimeout(timeout);
+      if (!resp.ok) {
+        const e = await resp.json().catch(() => ({}));
+        const msg = e.error?.message || `API Error(${resp.status})`;
+        // 429 (rate limit), 5xx (server error) are retryable
+        if (resp.status === 429 || resp.status >= 500) throw new Error(msg);
+        throw new Error(msg); // 4xx others are not
+      }
+      const data = await resp.json();
+      return data.choices[0].message.content;
+    } catch (err) {
+      clearTimeout(timeout);
+      lastError = err;
+      const isRetryable = err.name === 'AbortError' ||
+        err.message?.includes('429') || err.message?.includes('500') ||
+        err.message?.includes('503') || err.message?.includes('fetch') ||
+        err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError');
+      if (attempt < retries && isRetryable) {
+        await new Promise(r => setTimeout(r, (attempt + 1) * 1500));
+        continue;
+      }
+      break;
+    }
+  }
+  throw lastError;
 }
 
 async function getTarotReading(question, spread, drawnCards, context) {
   try {
     return await callDeepSeekAPI(buildReadingPrompt(question, spread, drawnCards, context));
   } catch (err) {
-    console.warn('AI reading failed, using offline fallback:', err.message);
+    console.warn('AI reading failed after retries:', err.message);
     return `<p style="text-align:center;color:var(--text-accent);margin-bottom:10px;font-family:var(--font-display);">Offline Reading · 离线解读</p>
-<p style="text-align:center;color:var(--text-dim);font-size:0.85rem;margin-bottom:18px;">AI service temporarily unavailable · AI 服务暂不可用</p>
+<p style="text-align:center;color:var(--text-dim);font-size:0.85rem;margin-bottom:18px;">AI service temporarily unavailable · AI 服务暂不可用<br><small>${err.message || 'Network error'}</small></p>
 ${generateFallbackCardSummary()}`;
   }
 }
