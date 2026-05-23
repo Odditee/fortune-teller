@@ -1,9 +1,6 @@
 /* ========================================
-   api.js — DeepSeek API integration
-   Uses embedded key — AI reading works out of the box.
+   api.js — Calls backend proxy (key stays on server)
    ======================================== */
-
-const TAROT_API_KEY = 'sk-127484eb7cba4aac895a05c14e6d233c';
 
 function buildReadingPrompt(question, spread, drawnCards, context) {
   let p = `你是一位资深塔罗解读师。请根据以下信息做详细中文解读。
@@ -28,51 +25,38 @@ ${spread.descriptionZh || spread.description}
     const m = dc.isReversed ? card.reversed : card.upright;
     p += `### ${pos.nameZh || pos.name}（${pos.descriptionZh || pos.description}）：${card.name}（${card.nameEn}）${dc.isReversed ? '逆位' : '正位'}
 含义：${m.meaning || ''}
-象征：${m.symbolism || ''}
-典故：${m.story || ''}
 `;
   });
   p += `\n## 要求
 1. 回顾用户问题
-2. 按牌阵位置逐一解读（结合正逆位、象征、典故）
+2. 按牌阵位置逐一解读（结合正逆位）
 3. 分析牌阵联动关系
 4. 给出综合建议
-5. 风格：神秘深刻、温暖有力，500-800字`;
+5. 风格：神秘深刻、温暖有力，400-600字`;
   return p;
 }
 
 async function callDeepSeekAPI(prompt, retries = 2) {
-  const apiKey = (await getSetting('tarot-api-key')) || TAROT_API_KEY;
   let lastError;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    const timeout = setTimeout(() => controller.abort(), 45000);
     try {
-      const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      const resp = await fetch('/api/reading', {
         method: 'POST',
         signal: controller.signal,
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          max_tokens: 1500,
-          temperature: 0.8,
-          messages: [
-            { role: 'system', content: '你是资深塔罗解读师，精通78张牌的含义与典故。解读神秘深刻，温暖有力。始终用中文，用"你"称呼用户。' },
-            { role: 'user', content: prompt },
-          ],
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
       });
       clearTimeout(timeout);
-      if (!resp.ok) {
-        const e = await resp.json().catch(() => ({}));
-        const msg = e.error?.message || `API Error(${resp.status})`;
-        // 429 (rate limit), 5xx (server error) are retryable
-        if (resp.status === 429 || resp.status >= 500) throw new Error(msg);
-        throw new Error(msg); // 4xx others are not
-      }
       const data = await resp.json();
-      return data.choices[0].message.content;
+      if (!resp.ok) {
+        const msg = data.error || `Server Error(${resp.status})`;
+        if (resp.status === 429 || resp.status >= 500) throw new Error(msg);
+        throw new Error(msg);
+      }
+      return data.content;
     } catch (err) {
       clearTimeout(timeout);
       lastError = err;
