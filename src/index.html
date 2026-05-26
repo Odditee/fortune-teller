@@ -6,8 +6,8 @@
   <title>Tarot · 星空之谕</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css?v=11">
 </head>
 <body>
   <canvas id="star-canvas"></canvas>
@@ -17,59 +17,116 @@
       <p class="app-subtitle">— 星空之谕 · Tarot Divination —</p>
     </header>
     <main class="app-content">
-      <!-- 欢迎引导页 -->
+      <!-- 欢迎引导页 — 星空散文诗 -->
       <section id="page-welcome" class="page active">
         <div class="welcome-content">
-          <div class="welcome-stars-icon">✦</div>
-          <h2 class="welcome-title">Stellar Oracle</h2>
-          <p class="welcome-subtitle">星空之谕 · Tarot Divination</p>
-          <div class="welcome-divider"></div>
-          <p class="welcome-poem">
-            在无尽星空之下，命运以星光为线，编织着每一个灵魂的故事。<br>
-            <span>Beneath the endless stars, fate weaves each soul's story with threads of starlight.</span>
-          </p>
-          <p class="welcome-poem">
-            牌已备好，静候你的召唤。它们低语着过往、现在与未来。<br>
-            <span>The cards await your call. They hold whispers of what was, what is, and what may yet be.</span>
-          </p>
-          <div class="welcome-steps">
-            <div class="welcome-step">
-              <span class="step-icon">✦</span>
-              <span class="step-text">Choose Your Spread · 选择牌阵</span>
-            </div>
-            <div class="welcome-step-arrow">→</div>
-            <div class="welcome-step">
-              <span class="step-icon">◇</span>
-              <span class="step-text">Ask Your Question · 心中所问</span>
-            </div>
-            <div class="welcome-step-arrow">→</div>
-            <div class="welcome-step">
-              <span class="step-icon">◈</span>
-              <span class="step-text">Draw Your Cards · 感应抽牌</span>
-            </div>
-            <div class="welcome-step-arrow">→</div>
-            <div class="welcome-step">
-              <span class="step-icon">✧</span>
-              <span class="step-text">Receive Your Reading · 获得解读</span>
-            </div>
+          <!-- 星座装饰 -->
+          <div class="welcome-constellation" aria-hidden="true">
+            <span class="constellation-star cs-1">·</span>
+            <span class="constellation-star cs-2">·</span>
+            <span class="constellation-star cs-3">·</span>
+            <span class="constellation-star cs-4">·</span>
+            <span class="constellation-star cs-5">·</span>
+            <span class="constellation-star cs-6">·</span>
+            <span class="constellation-star cs-7">·</span>
+            <span class="constellation-star cs-8">·</span>
           </div>
-          <button id="btn-enter-gate" class="btn btn-gate">Enter the Star Gate · 开启星空之门</button>
+
+          <h2 class="welcome-title">STELLAR ORACLE</h2>
+          <p class="welcome-subtitle">星空之谕 · Tarot Divination</p>
+
+          <div class="welcome-divider"></div>
+
+          <!-- 散文诗引言 -->
+          <div class="welcome-poem">
+            <p class="poem-stanza">
+              Before the first temple was raised, before the first prayer was whispered into the dark — there were the stars. Unmoving in their courses, yet tracing lines of meaning across the vault of night, they have been the silent companions of every human question ever asked.
+            </p>
+            <p class="poem-stanza poem-stanza-zh">
+              在第一座神殿建起之前，在第一句祷词没入黑暗之前——星辰便已在。它们在轨迹中不动，却在夜的穹顶划出意义的线条，是每一个人类曾问过的问题的无声伴侣。
+            </p>
+
+            <p class="poem-stanza">
+              The ancients understood what we, in our haste, have forgotten: that the outer sky and the inner soul are woven from the same thread. To gaze upward is to gaze inward. The cards do not invent your story — they remember it, piece by piece, from a place in you that has always known.
+            </p>
+            <p class="poem-stanza poem-stanza-zh">
+              古人懂得我们在匆忙中已然遗忘的事：外部的天空与内在的灵魂，是由同一根线织成的。仰望星空，即是凝视内心。牌并不发明你的故事——它们记起它，一片一片地，从你心中一向知晓的所在。
+            </p>
+
+            <p class="poem-stanza">
+              Some days call for a single word — a quiet companion to carry through the hours. Other days demand a fuller conversation, a deeper reckoning with the forces that shape your path. Wherever you stand, the cards are ready. The question is not whether the stars speak, but whether you are still enough to listen.
+            </p>
+            <p class="poem-stanza poem-stanza-zh">
+              有些日子只需要一个字——一位安静的同伴陪你度过时光。有些日子则需要一场更深的对话，与塑造你道路的力量进行一次更完整的清算。无论你站在何处，牌已备好。问题不在于星辰是否言语，而在于你是否足够安静去聆听。
+            </p>
+          </div>
+
+          <div class="welcome-divider"></div>
+
+          <!-- 双门入口 -->
+          <div class="welcome-gates">
+            <button class="btn btn-gate btn-gate-daily" id="btn-gate-daily">
+              <span class="gate-icon">✧</span>
+              <span class="gate-title">Daily Whisper</span>
+              <span class="gate-subtitle">星辰低语</span>
+              <span class="gate-desc">A single card for today's guidance</span>
+              <span class="gate-desc-zh">每日一牌，今日指引</span>
+            </button>
+            <button class="btn btn-gate btn-gate-seek" id="btn-gate-seek">
+              <span class="gate-icon">◈</span>
+              <span class="gate-title">Seek the Stars</span>
+              <span class="gate-subtitle">问卜星空</span>
+              <span class="gate-desc">Ask your question · Choose your spread</span>
+              <span class="gate-desc-zh">心中所问 · 牌阵指引</span>
+            </button>
+          </div>
         </div>
       </section>
-      <!-- 牌阵选择 -->
-      <section id="page-spread-select" class="page">
-        <h2 class="section-title">Choose Your Spread · 选择牌阵</h2>
-        <p class="section-desc">Each spread reveals a different facet of your destiny · 每个牌阵揭示命运的不同面向</p>
-        <div id="spread-grid" class="spread-grid"></div>
+      <!-- 牌阵选择 — 炼金星图罗盘 -->
+      <section id="page-spread-select" class="page spread-select-page">
+        <h2 class="section-title">Stellar Compass · 星辰罗盘</h2>
+        <p class="section-desc">The stars remember every pattern of destiny · 星辰铭记命运的每一种图式</p>
+        <div id="compass-container" class="compass-container"></div>
+      </section>
+      <!-- 每日一牌 -->
+      <section id="page-daily" class="page">
+        <div class="daily-content">
+          <div class="daily-header">
+            <h2 class="section-title">Daily Whisper · 星辰低语</h2>
+            <p class="section-desc">A single card, a single message — what do the stars whisper to you today?</p>
+            <p class="section-desc-zh">一张牌，一句话——今天星辰对你低语了什么？</p>
+          </div>
+          <div class="daily-prose">
+            <p class="daily-prose-en">The ancients drew a single lot at dawn — not to command the day, but to learn which force walked beside them. One card. One whisper. One thread pulled from the great weave. The stars do not shout; they lean close and murmur. In the space of a single image, a single symbol, the whole sky bends near. You are not being told what will happen — you are being shown what already stirs within you, waiting to be known.</p>
+            <p class="daily-prose-divider">· · ·</p>
+            <p class="daily-prose-zh">古人于黎明抽一支签——不为掌控这一日，只为知晓今日与何种力量同行。一张牌。一声低语。从伟大织锦中抽出的一根线。星辰从不嘶吼，它们俯身低语。在一幅图像、一个符号的空间里，整片天空弯下腰来靠近你。你被告知的并非将要发生什么——你被展示的，是早已在你心中涌动、等待被你认出的事物。</p>
+          </div>
+          <div id="daily-card-display" class="daily-card-display">
+            <div class="daily-card-placeholder">
+              <div class="daily-placeholder-icon">✧</div>
+              <p>Draw your card for today<br><span class="zh">抽取今日之牌</span></p>
+            </div>
+          </div>
+          <div id="daily-reading" class="daily-reading"></div>
+          <div class="daily-actions">
+            <button id="btn-draw-daily" class="btn btn-primary">Draw Today's Card · 抽取今日之牌</button>
+            <div class="daily-journal-toggle">
+              <button id="btn-journal-daily" class="btn btn-ghost" style="display:none">Write a Reflection · 写下感悟</button>
+            </div>
+            <textarea id="daily-journal-input" class="context-input" placeholder="What does this card stir in you? · 这张牌在你心中激起了什么？" maxlength="1000" rows="3" style="display:none"></textarea>
+            <button id="btn-save-journal" class="btn btn-primary" style="display:none">Save Reflection · 保存感悟</button>
+          </div>
+          <button id="btn-back-from-daily" class="btn btn-ghost">← Return · 返回首页</button>
+        </div>
       </section>
       <!-- 问题输入 -->
       <section id="page-question" class="page">
         <h2 class="section-title">What Seek You? · 心中所问</h2>
         <p class="section-desc">Hold your question in your heart, then write it down · 将心中所惑凝于笔尖</p>
         <div class="question-area">
-          <textarea id="question-input" class="question-input" placeholder="Write your question here... · 写下你想问的事情……" maxlength="300" rows="3"></textarea>
-          <p class="question-hint">The more you share, the clearer the stars speak<br>描述越清晰，星象越精准</p>
-          <textarea id="context-input" class="context-input" placeholder="Optional: Share the background of your situation... · 选填：分享你所问之事的背景与细节……" maxlength="3000" rows="3"></textarea>
+          <textarea id="question-input" class="question-input" placeholder="Hold your question in your heart, then write it down... · 将心中所惑凝于笔尖……" maxlength="300" rows="3"></textarea>
+          <p id="question-refine-hint" class="question-refine-hint"></p>
+          <textarea id="context-input" class="context-input" placeholder="Share more background — when did this begin, who is involved, what do you feel now? The clearer the stars reflect, the closer the reading will touch your situation...&#10;分享更多背景——事情从何时开始、涉及谁、你此刻的感受。星辰映照得越清晰，解读便越贴近你的处境……" maxlength="3000" rows="3"></textarea>
           <div class="selected-spread-info" id="selected-spread-info"></div>
           <div class="draw-mode-select">
             <p class="mode-label">Choose your draw method · 选择抽牌方式：</p>
@@ -79,6 +136,7 @@
             </div>
           </div>
           <button id="btn-start-draw" class="btn btn-primary" disabled>Begin Draw · 开始抽牌</button>
+          <button id="btn-back-to-spread" class="btn btn-ghost">← Reselect Spread · 重选牌阵</button>
         </div>
       </section>
       <!-- 数字抽牌 -->
@@ -89,15 +147,9 @@
         <button id="btn-confirm-numbers" class="btn btn-primary" disabled>Confirm · 确认选牌</button>
         <button id="btn-back-to-question" class="btn btn-ghost">← Back · 返回</button>
       </section>
-      <!-- 牌圈抽牌 -->
+      <!-- 牌圈抽牌 — full-screen immersive -->
       <section id="page-draw-circle" class="page">
-        <div class="circle-header">
-          <h2 class="section-title">Feel the Cards · 感应选牌</h2>
-          <p class="section-desc">Rotate & click the cards that call to you · 旋转牌圈，点击感应你的牌</p>
-          <span id="circle-progress" class="circle-progress">Remaining · 还需：0</span>
-        </div>
-        <div id="circle-container" class="circle-container"></div>
-        <button id="btn-back-circle" class="btn btn-ghost">← Back · 返回</button>
+        <div id="circle-prose" class="circle-prose"></div>
       </section>
       <!-- 牌面展示+解读 -->
       <section id="page-reveal" class="page">
@@ -105,7 +157,7 @@
         <div id="reveal-spread-name" class="reveal-spread-name"></div>
         <div id="cards-display" class="cards-display"></div>
         <div class="interpretation">
-          <h3>Interpretation · 综合解读</h3>
+          <h3>Interpretation · 综合解读 <button class="lang-toggle-btn" id="lang-toggle" onclick="cycleLanguage()" title="Switch language · 切换语言">中文</button></h3>
           <div id="ai-reading" class="ai-reading">
             <div class="loading-spinner"><div class="spinner"></div><p>Connecting to the tarot... 正在感应塔罗的力量……</p></div>
           </div>
@@ -129,7 +181,27 @@
       <button class="nav-btn" data-page="history">History · 历史</button>
     </nav>
   </div>
+  <!-- 抽牌 UI — 直接放在 body 层，避免层叠上下文冲突 -->
+  <div id="draw-prompt" class="draw-prompt"></div>
+  <div id="draw-progress" class="draw-progress"></div>
+  <button id="draw-action-btn" class="btn btn-primary draw-action-btn" onclick="TarotCircle.reveal()">Reveal Your Destiny · 解读命运</button>
+  <button id="btn-back-circle" class="btn btn-ghost" style="position:fixed;top:16px;left:16px;z-index:10;opacity:0.5">← Back · 返回</button>
   <div id="toast" class="toast"></div>
+  <!-- 确认弹窗 — 选牌阵后确认 -->
+  <div id="confirm-dialog" class="confirm-dialog">
+    <div class="confirm-dialog-backdrop" onclick="closeConfirmDialog()"></div>
+    <div class="confirm-dialog-card">
+      <p class="confirm-dialog-icon" id="confirm-icon"></p>
+      <p class="confirm-dialog-name" id="confirm-name"></p>
+      <p class="confirm-dialog-name-zh" id="confirm-name-zh"></p>
+      <p class="confirm-dialog-count" id="confirm-count"></p>
+      <p class="confirm-dialog-prompt">确认选择此牌阵？<br><span style="font-size:0.7rem;opacity:0.5">Confirm this spread?</span></p>
+      <div class="confirm-dialog-actions">
+        <button class="btn btn-primary" id="btn-confirm-yes">确认 · Confirm</button>
+        <button class="btn btn-ghost" id="btn-confirm-no" onclick="closeConfirmDialog()">取消 · Cancel</button>
+      </div>
+    </div>
+  </div>
   <!-- 牌面详情弹窗 -->
   <div id="card-modal" class="card-modal">
     <div class="card-modal-backdrop" onclick="closeCardModal()"></div>
@@ -156,17 +228,50 @@
       <p id="api-msg" style="text-align:center;margin-top:10px;font-size:0.85rem"></p>
     </div>
   </div>
+  <!-- 炼金术书页弹窗 -->
+  <div id="book-modal" class="book-modal">
+    <div class="book-modal-backdrop" onclick="closeBookModal()"></div>
+    <div class="book-container">
+      <div class="book-spine"></div>
+      <div class="book-page book-page-left">
+        <div id="book-diagram" class="book-diagram-container"></div>
+        <div class="book-diagram-divider"></div>
+        <div class="book-spread-icon" id="book-spread-icon"></div>
+        <div class="book-spread-name" id="book-spread-name"></div>
+        <div class="book-spread-name-zh" id="book-spread-name-zh"></div>
+        <div class="book-spread-count" id="book-spread-count"></div>
+        <ul class="book-spread-positions" id="book-spread-positions"></ul>
+      </div>
+      <div class="book-page book-page-right">
+        <div class="book-spread-bestfor" id="book-spread-bestfor"></div>
+        <div class="book-spread-desc" id="book-spread-desc"></div>
+        <div class="book-page-nav">
+          <button class="btn-page-prev" id="btn-page-prev" onclick="flipBookPage(-1)">◂ Prev · 上一页</button>
+          <span class="book-page-indicator" id="book-page-indicator">1 / 1</span>
+          <button class="btn-page-next" id="btn-page-next" onclick="flipBookPage(1)">Next · 下一页 ▸</button>
+        </div>
+        <div class="book-actions">
+          <button class="btn-book-select" id="btn-book-select">Select · 选择此牌阵</button>
+          <button class="btn-book-close" onclick="closeBookModal()">Close · 关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
   </script>
-  <script src="js/cards.js"></script>
-  <script src="js/spreads.js"></script>
-  <script src="js/effects.js"></script>
-  <script src="js/audio.js"></script>
-  <script src="js/history.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/card-art.js"></script>
-  <script src="js/circle.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/cards.js?v=12"></script>
+  <script src="js/spreads.js?v=12"></script>
+  <script src="js/spread-diagram.js?v=12"></script>
+  <script src="js/tarot-knowledge.js?v=12"></script>
+  <script src="js/reading-engine.js?v=12"></script>
+  <script src="js/effects.js?v=12"></script>
+  <script src="js/audio.js?v=12"></script>
+  <script src="js/history.js?v=12"></script>
+  <script src="js/api.js?v=12"></script>
+  <script src="js/card-art.js?v=12"></script>
+  <script src="js/circle.js?v=12"></script>
+  <script src="js/compass.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
 </body>
 </html>

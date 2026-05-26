@@ -1,103 +1,99 @@
 /* ========================================
-   api.js — Calls backend proxy (key stays on server)
+   api.js — Local Reading Engine Interface
+   Zero API calls. Calls reading-engine.js (rule-based).
    ======================================== */
 
-function buildReadingPrompt(question, spread, drawnCards, context) {
-  let p = `你是一位资深塔罗解读师。请根据以下信息做详细中文解读。
+async function getTarotReading(question, spread, drawnCards, context, options = {}) {
+  // Delay for flip animation to complete
+  const delay = Math.max(0, 400 + drawnCards.length * 300 + 200 - 200);
+  await new Promise(r => setTimeout(r, Math.min(delay, 2000)));
 
-## 用户问题
-${question}
-`;
-  if (context) {
-    p += `## 问题背景
-${context}
-`;
-  }
-  p += `## 牌阵：${spread.name} / ${spread.nameZh}（${spread.cardCount} Cards）
-${spread.descriptionZh || spread.description}
+  console.log('[getTarotReading] Starting generation...', { question, spreadId: spread?.id, cardCount: drawnCards.length, mode: options.mode });
 
-## 抽到的牌
-`;
-  drawnCards.forEach((dc, i) => {
-    const card = getCardById(dc.cardId);
-    const pos = spread.positions[i];
-    if (!card) return;
-    const m = dc.isReversed ? card.reversed : card.upright;
-    p += `### ${pos.nameZh || pos.name}（${pos.descriptionZh || pos.description}）：${card.name}（${card.nameEn}）${dc.isReversed ? '逆位' : '正位'}
-含义：${m.meaning || ''}
-`;
-  });
-  p += `\n## 要求
-1. 回顾用户问题
-2. 按牌阵位置逐一解读（结合正逆位）
-3. 分析牌阵联动关系
-4. 给出综合建议
-5. 风格：神秘深刻、温暖有力，400-600字`;
-  return p;
-}
-
-async function callDeepSeekAPI(prompt, retries = 2) {
-  let lastError;
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 45000);
-    try {
-      const resp = await fetch('/api/reading', {
-        method: 'POST',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-      });
-      clearTimeout(timeout);
-      const data = await resp.json();
-      if (!resp.ok) {
-        const msg = data.error || `Server Error(${resp.status})`;
-        if (resp.status === 429 || resp.status >= 500) throw new Error(msg);
-        throw new Error(msg);
-      }
-      return data.content;
-    } catch (err) {
-      clearTimeout(timeout);
-      lastError = err;
-      const isRetryable = err.name === 'AbortError' ||
-        err.message?.includes('429') || err.message?.includes('500') ||
-        err.message?.includes('503') || err.message?.includes('fetch') ||
-        err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError');
-      if (attempt < retries && isRetryable) {
-        await new Promise(r => setTimeout(r, (attempt + 1) * 1500));
-        continue;
-      }
-      break;
-    }
-  }
-  throw lastError;
-}
-
-async function getTarotReading(question, spread, drawnCards, context) {
+  let result;
   try {
-    return await callDeepSeekAPI(buildReadingPrompt(question, spread, drawnCards, context));
-  } catch (err) {
-    console.warn('AI reading failed after retries:', err.message);
-    return `<p style="text-align:center;color:var(--text-accent);margin-bottom:10px;font-family:var(--font-display);">Offline Reading · 离线解读</p>
-<p style="text-align:center;color:var(--text-dim);font-size:0.85rem;margin-bottom:18px;">AI service temporarily unavailable · AI 服务暂不可用<br><small>${err.message || 'Network error'}</small></p>
-${generateFallbackCardSummary()}`;
+    if (typeof generateReading !== 'function') {
+      throw new Error('generateReading function not found — reading-engine.js may not have loaded');
+    }
+    result = generateReading(question, spread, drawnCards, {
+      context,
+      mode: options.mode || 'structured',
+      includeTiming: options.includeTiming || false,
+    });
+    console.log('[getTarotReading] generateReading succeeded');
+  } catch (e) {
+    console.error('[getTarotReading] generateReading failed:', e.message, e.stack);
+    throw new Error('解读生成失败: ' + e.message);
   }
+
+  let html = '';
+
+  // Mode toggle buttons
+  html += `<div class="reading-mode-toggle">`;
+  html += `<button class="btn-mode-toggle ${options.mode !== 'narrative' ? 'active' : ''}" onclick="switchReadingMode('structured')">Structured · 结构解读</button>`;
+  html += `<button class="btn-mode-toggle ${options.mode === 'narrative' ? 'active' : ''}" onclick="switchReadingMode('narrative')">Narrative · 命运叙事</button>`;
+  html += `</div>`;
+
+  // Summary
+  html += `<div class="reading-summary">${result.summary}</div>`;
+
+  // Divider
+  html += `<div class="reading-divider">✦ ✦ ✦</div>`;
+
+  // Detailed content
+  html += `<div class="reading-detail" id="reading-detail">${result.detailed}</div>`;
+
+  return html;
 }
 
-function generateFallbackCardSummary() {
-  const spread = AppState.selectedSpread;
-  if (!spread) return '';
-  let html = '';
-  AppState.drawnCards.forEach((dc, i) => {
-    const card = getCardById(dc.cardId);
-    const pos = spread.positions[i];
-    if (!card) return;
-    const meaning = dc.isReversed ? card.reversed.meaning : card.upright.meaning;
-    html += `<div style="margin-bottom:14px;padding:10px;border-left:2px solid var(--border-accent);padding-left:12px">
-      <strong style="color:var(--text-accent)">【${pos ? (pos.nameZh || pos.name) : ''}】${card.name} / ${card.nameEn}（${dc.isReversed ? 'Reversed 逆位' : 'Upright 正位'}）</strong>
-      <p style="margin-top:6px;line-height:1.8">${meaning || 'Content pending... 内容待补充'}</p>
-    </div>`;
+// Mode switching (called from UI)
+async function switchReadingMode(mode) {
+  const container = document.getElementById('ai-reading');
+  if (!container) return;
+
+  // Find elements BEFORE modifying DOM
+  const detailEl = document.getElementById('reading-detail');
+  const summaryEl = container.querySelector('.reading-summary');
+  const oldPrompt = document.getElementById('timing-prompt');
+  if (oldPrompt) oldPrompt.remove();
+
+  // Show loading only in the detail area — don't destroy the container
+  if (detailEl) {
+    detailEl.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Weaving the narrative... 正在编织命运之线……</p></div>';
+  }
+
+  await new Promise(r => setTimeout(r, 400));
+
+  const result = generateReading(AppState.question, AppState.selectedSpread, AppState.drawnCards, {
+    context: AppState.context,
+    mode: mode,
+    includeTiming: AppState.includeTiming || false,
   });
-  return html;
+
+  // Update detail
+  if (detailEl) {
+    detailEl.innerHTML = result.detailed;
+    detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Update summary
+  if (summaryEl) {
+    summaryEl.innerHTML = result.summary;
+  }
+
+  // Update toggle buttons
+  const toggleBtns = document.querySelectorAll('.btn-mode-toggle');
+  toggleBtns.forEach(btn => {
+    const onclick = btn.getAttribute('onclick') || '';
+    btn.classList.toggle('active', onclick.includes(mode));
+  });
+
+  // Update app state
+  AppState.readingMode = mode;
+  AppState.readingResult = result;
+
+  // Re-inject timing prompt if not already included
+  if (!AppState.includeTiming) {
+    injectTimingPrompt(container);
+  }
 }

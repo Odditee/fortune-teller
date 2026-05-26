@@ -1,3 +1,11 @@
 .DS_Store
 .env
 server.py
+node_modules/
+test-results/
+.extracted-text/
+.claude/
+package-lock.json
+app.js
+circle.js
+main.css

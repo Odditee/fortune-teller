@@ -1,126 +1,288 @@
 /* ========================================
    Stellar Oracle — Main Stylesheet
    Theme: Starry night, silver light, European classical
+   Alchemy theme: deep blue-black + gold geometric lines
    ======================================== */
 
 :root {
-  --bg-deep: #080c18;
-  --bg-night: #0b1025;
-  --bg-panel: rgba(14, 18, 36, 0.88);
-  --bg-card: #141830;
-  --text-primary: #c8d0d8;
-  --text-accent: #b8c5d6;
-  --text-dim: #6a7088;
-  --border-dark: #2a2e44;
-  --border-accent: #5a6080;
-  --accent: #8a90b0;
-  --glow-accent: 0 0 20px rgba(140, 150, 190, 0.25);
-  --shadow-card: 0 4px 30px rgba(0, 0, 0, 0.5);
-  --font-display: 'Cinzel', 'EB Garamond', 'Cormorant Garamond', serif;
-  --font-body: 'Cormorant Garamond', 'EB Garamond', 'Georgia', serif;
-  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --bg-deep: #010206;
+  --bg-night: #020410;
+  --bg-panel: rgba(6,8,18,0.78);
+  --bg-card: #060914;
+  --text-primary: #dce0f0;
+  --text-accent: #e2e5f5;
+  --text-dim: #8890b0;
+  --border-dark: #121526;
+  --border-accent: #363c52;
+  --accent: #a0a8c8;
+  --glow-accent: 0 0 30px rgba(160,170,210,0.35);
+  --shadow-card: 0 4px 40px rgba(0, 0, 0, 0.6);
+  --font-display: 'Cinzel', 'Noto Serif SC', 'Songti SC', 'EB Garamond', 'Cormorant Garamond', serif;
+  --font-body: 'Cormorant Garamond', 'Noto Serif SC', 'Songti SC', 'EB Garamond', 'Georgia', serif;
+  --font-ui: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --radius: 8px;
   --radius-lg: 16px;
+
+  /* ── Stellar Compass: Moonlight Silver Theme ── */
+  --silver: #b8c0d8;
+  --silver-bright: #d0d6e8;
+  --silver-dim: #8a92b0;
+  --silver-pale: rgba(184, 192, 216, 0.25);
+  --panel-deep: rgba(10, 8, 20, 0.95);
+  --panel-light: rgba(16, 13, 28, 0.92);
+  --silver-line: rgba(184, 192, 216, 0.3);
+  --silver-line-strong: rgba(184, 192, 216, 0.55);
+  --silver-glow: 0 0 30px rgba(184, 192, 216, 0.25);
+  --silver-glow-strong: 0 0 50px rgba(184, 192, 216, 0.4);
+  --panel-shadow: 0 4px 40px rgba(0, 0, 0, 0.7);
+  --compass-size: min(520px, 70vw);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  width: 100%; height: 100%; height: 100dvh; overflow: hidden;
+  width: 100%; height: 100vh; height: 100dvh; overflow: hidden;
   font-family: var(--font-ui); color: var(--text-primary); background: var(--bg-deep);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
-/* Prevent pull-to-refresh on mobile during card circle interaction */
+/* Full-screen immersive card drawing */
 #page-draw-circle {
   overscroll-behavior: none;
   touch-action: none;
+  background: #000103;
+}
+#page-draw-circle .app-header,
+#page-draw-circle .app-nav { display: none; }
+#page-draw-circle .app-container { max-width: none; padding: 0; }
+#page-draw-circle .circle-container {
+  position: fixed; inset: 0; height: auto; border-radius: 0;
+  background: radial-gradient(ellipse at center, rgba(8,8,25,0.3), #000103 85%);
+}
+/* Draw progress — stardust dots at bottom */
+.draw-progress {
+  position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 15;
+  display: flex; gap: 12px; align-items: center;
+}
+.draw-progress-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(180,190,220,0.2); transition: all 0.5s ease;
+}
+.draw-progress-dot.filled {
+  background: rgba(200,210,240,0.7); box-shadow: 0 0 12px rgba(180,190,220,0.5);
+}
+.draw-action-btn {
+  position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 20;
+  padding: 12px 32px; opacity: 0; pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.draw-action-btn.visible { opacity: 1; pointer-events: auto; z-index: 20; }
+#draw-action-btn.visible:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 0 30px rgba(160,170,210,0.35);
+}
+/* Entry text animation */
+.draw-prompt {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;
+  font-family: var(--font-display); font-size: 1.3rem; color: var(--text-accent);
+  letter-spacing: 0.15em; text-align: center; pointer-events: none;
+  opacity: 0;
+}
+.draw-prompt.animate {
+  animation: promptFade 3.5s ease-in-out forwards;
+}
+@keyframes promptFade {
+  0% { opacity: 0; transform: translate(-50%, -50%) translateY(20px); }
+  15% { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) translateY(-15px); }
 }
 
 #star-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
 .app-container {
-  position: relative; z-index: 1; display: flex; flex-direction: column;
-  height: 100vh; max-width: 900px; margin: 0 auto; padding: 0 20px;
+  position: relative; display: flex; flex-direction: column;
+  height: 100dvh; max-width: 900px; margin: 0 auto; padding: 0 20px;
+  overflow: hidden;
 }
 
 .app-header { text-align: center; padding: 24px 0 12px; flex-shrink: 0; }
 .app-title {
   font-family: var(--font-display); font-size: 2rem; font-weight: 400;
-  color: var(--text-accent); letter-spacing: 0.2em;
-  text-shadow: 0 0 30px rgba(160, 175, 210, 0.25), 0 2px 4px rgba(0, 0, 0, 0.6);
+  color: var(--text-accent); letter-spacing: 0.25em;
+  text-shadow: 0 0 40px rgba(200,210,240,0.35), 0 0 8px rgba(220,225,250,0.15), 0 2px 4px rgba(0, 0, 0, 0.6);
   user-select: none;
 }
-.app-subtitle { font-family: var(--font-body); font-size: 1rem; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.2em; }
+.app-subtitle { font-family: var(--font-body); font-size: 1rem; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.2em; text-shadow: 0 0 12px rgba(200,210,235,0.2); }
 
 /* Welcome Page */
 .welcome-content {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; padding: 20px 16px; min-height: 100%; gap: 18px;
+  position: relative;
 }
-.welcome-stars-icon {
-  font-size: 3rem; color: var(--text-accent);
-  animation: welcomePulse 3s ease-in-out infinite;
-  text-shadow: 0 0 40px rgba(160,175,210,0.3);
+
+/* ── Constellation Decoration ── */
+.welcome-constellation {
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  width: 260px; height: 180px; pointer-events: none; z-index: 0;
 }
-@keyframes welcomePulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
+.constellation-star {
+  position: absolute; color: rgba(160,180,210,0.35);
+  font-size: 0.55rem; animation: constellationTwinkle 4s ease-in-out infinite;
 }
+/* Star positions — rough Big Dipper / Ursa Major shape */
+.cs-1 { top: 8px; left: 50px; animation-delay: 0s; }
+.cs-2 { top: 30px; left: 110px; animation-delay: 0.6s; }
+.cs-3 { top: 55px; left: 160px; animation-delay: 1.2s; }
+.cs-4 { top: 70px; left: 200px; animation-delay: 0.3s; }
+.cs-5 { top: 110px; left: 130px; animation-delay: 1.8s; }
+.cs-6 { top: 90px; left: 60px; animation-delay: 0.9s; }
+.cs-7 { top: 140px; left: 170px; animation-delay: 1.5s; }
+.cs-8 { top: 25px; left: 190px; animation-delay: 2.1s; font-size: 0.35rem; }
+@keyframes constellationTwinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; text-shadow: 0 0 8px rgba(160,180,220,0.5); }
+}
+
 .welcome-title {
   font-family: var(--font-display); font-size: 2rem; font-weight: 400;
   color: var(--text-accent); letter-spacing: 0.25em;
-  text-shadow: 0 0 30px rgba(160,175,210,0.25);
+  text-shadow: 0 0 40px rgba(200,215,245,0.4), 0 0 10px rgba(220,230,255,0.18), 0 2px 4px rgba(0, 0, 0, 0.6);
+  position: relative; z-index: 1;
 }
 .welcome-subtitle {
   font-family: var(--font-body); font-size: 1rem; color: var(--text-dim);
-  letter-spacing: 0.15em; margin-top: -10px;
+  letter-spacing: 0.15em; margin-top: -10px; position: relative; z-index: 1;
 }
 .welcome-divider {
   width: 60px; height: 1px;
   background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
-  margin: 4px 0;
+  margin: 4px 0; position: relative; z-index: 1;
 }
+
+/* ── Welcome Poem ── */
 .welcome-poem {
-  font-family: var(--font-body); font-size: 0.95rem; color: var(--text-primary);
-  line-height: 2; max-width: 460px;
+  position: relative; z-index: 1;
+  max-width: 560px; margin: 0 auto;
 }
-.welcome-poem span {
-  display: block; font-size: 0.8rem; color: var(--text-dim);
-  font-style: italic; margin-top: 2px;
+.poem-stanza {
+  font-family: var(--font-body); font-size: 0.95rem; line-height: 2.1;
+  color: var(--text-primary); text-align: center; margin-bottom: 16px;
+  font-style: italic; letter-spacing: 0.02em;
+  text-shadow: 0 0 8px rgba(210,220,245,0.12);
 }
-.welcome-steps {
-  display: flex; align-items: center; flex-wrap: wrap; justify-content: center;
-  gap: 8px; margin-top: 6px; max-width: 500px;
+.poem-stanza-zh {
+  font-family: var(--font-body); font-size: 0.85rem; line-height: 2;
+  color: var(--text-dim); text-align: center; margin-bottom: 20px;
+  letter-spacing: 0.04em;
 }
-.welcome-step {
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(160,175,210,0.06); border: 1px solid var(--border-dark);
-  border-radius: 20px; padding: 8px 14px;
+
+/* Welcome gates: dual entrance buttons */
+.welcome-gates {
+  display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+  margin-top: 18px;
 }
-.step-icon { font-size: 0.85rem; color: var(--text-accent); }
-.step-text { font-size: 0.8rem; color: var(--text-primary); white-space: nowrap; font-family: var(--font-body); }
-.welcome-step-arrow { color: var(--text-dim); font-size: 0.8rem; }
 .btn-gate {
   margin-top: 14px; padding: 14px 36px; font-size: 1.1rem;
-  background: linear-gradient(135deg, rgba(160,175,210,0.15), rgba(100,110,150,0.1));
+  background: linear-gradient(135deg, rgba(160,175,220,0.12), rgba(100,110,150,0.06));
   border: 1.5px solid var(--border-accent);
-  color: var(--text-accent); letter-spacing: 0.1em;
+  color: var(--text-accent); letter-spacing: 0.12em;
   border-radius: 30px; font-family: var(--font-display);
-  box-shadow: 0 0 30px rgba(140,150,190,0.15);
+  box-shadow: 0 0 30px rgba(150,160,200,0.12);
   transition: all 0.4s ease;
 }
 .btn-gate:hover {
-  background: linear-gradient(135deg, rgba(180,195,225,0.25), rgba(120,130,170,0.15));
-  box-shadow: 0 0 50px rgba(160,175,210,0.3);
+  background: linear-gradient(135deg, rgba(180,195,230,0.2), rgba(120,130,170,0.1));
+  box-shadow: 0 0 50px rgba(160,175,220,0.28);
   transform: translateY(-2px);
 }
 
+/* Dual gate buttons */
+.welcome-gates .btn-gate {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 20px 28px; min-width: 190px; margin-top: 0;
+  border-radius: 20px; cursor: pointer;
+}
+.gate-icon { font-size: 1.8rem; margin-bottom: 4px; }
+.gate-title { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: 0.08em; color: var(--text-accent); }
+.gate-subtitle { font-size: 0.95rem; color: var(--text-dim); letter-spacing: 0.04em; }
+.gate-desc { font-size: 0.72rem; color: var(--text-dim); opacity: 0.7; letter-spacing: 0.04em; }
+.gate-desc-zh { font-size: 0.7rem; color: var(--text-dim); opacity: 0.55; }
+
+/* Daily card page */
+.daily-content {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.daily-header { text-align: center; }
+.section-desc-zh { font-size: 0.85rem; color: var(--text-dim); }
+.daily-card-display {
+  display: flex; align-items: center; justify-content: center;
+}
+.daily-card-placeholder {
+  display: none;
+}
+.daily-placeholder-icon { font-size: 3rem; margin-bottom: 8px; animation: welcomePulse 3s ease-in-out infinite; }
+.daily-card-revealed {
+  text-align: center; animation: summaryReveal 0.8s ease-out;
+}
+.daily-card-art { margin-bottom: 12px; }
+.daily-card-name {
+  font-family: var(--font-display); font-size: 1.2rem; color: var(--text-accent);
+  letter-spacing: 0.06em; margin-bottom: 2px;
+}
+.daily-card-en {
+  font-size: 0.9rem; color: var(--text-dim); font-style: italic; margin-bottom: 8px;
+}
+.daily-card-keywords {
+  display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px;
+}
+.daily-keyword {
+  font-size: 0.72rem; padding: 3px 10px; border-radius: 10px;
+  background: rgba(160,170,210,0.06); color: var(--text-dim);
+  border: 1px solid rgba(160,170,210,0.1);
+}
+.daily-card-meaning {
+  font-family: var(--font-body); font-size: 0.95rem; line-height: 2;
+  color: var(--text-primary); max-width: 500px; text-align: center;
+}
+.daily-card-meaning-zh {
+  font-family: var(--font-body); font-size: 0.88rem; line-height: 1.9;
+  color: var(--text-dim); max-width: 460px; text-align: center;
+}
+.daily-card-element {
+  font-size: 0.78rem; color: var(--text-dim); opacity: 0.7; margin-bottom: 4px;
+  letter-spacing: 0.06em;
+}
+.daily-card-advice {
+  font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8;
+  color: var(--text-accent); font-style: italic; max-width: 480px; text-align: center;
+  margin-top: 8px; padding: 12px 16px;
+  border: 1px solid rgba(160,170,210,0.1); border-radius: 12px;
+  background: rgba(160,170,210,0.02);
+}
+.daily-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.daily-journal-toggle { text-align: center; }
+
+/* Daily calendar */
+.daily-calendar {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  max-width: 360px; margin: 0 auto;
+}
+.daily-calendar-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; color: var(--text-dim); border-radius: 4px;
+  background: rgba(18,21,38,0.4); cursor: pointer;
+}
+.daily-calendar-day.has-card { border: 1px solid var(--border-accent); color: var(--text-accent); }
+.daily-calendar-day.today { background: rgba(160,170,210,0.1); }
+
 .app-content { flex: 1; overflow-y: auto; padding: 12px 0 20px; scroll-behavior: smooth; }
-.app-content::-webkit-scrollbar { width: 4px; }
-.app-content::-webkit-scrollbar-track { background: transparent; }
-.app-content::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 2px; }
+.app-content::-webkit-scrollbar { display: none; }
+
+/* Hide header on welcome page to avoid duplicate titles */
+.app-container:has(#page-welcome.active) .app-header { display: none; }
 
 .page { display: none; flex-direction: column; gap: 16px; animation: fadeSlideIn 400ms ease; }
 .page.active { display: flex; }
@@ -128,25 +290,26 @@ html, body {
 
 .section-title {
   font-family: var(--font-display); font-size: 1.3rem; font-weight: 400;
-  color: var(--text-accent); text-align: center; letter-spacing: 0.08em;
+  color: var(--text-accent); text-align: center; letter-spacing: 0.15em;
+  text-shadow: 0 0 20px rgba(200,215,245,0.25), 0 0 6px rgba(220,230,255,0.1);
 }
-.section-desc { text-align: center; color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; }
+.section-desc { text-align: center; color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; text-shadow: 0 0 10px rgba(200,210,235,0.15); }
 
 /* Spread Grid */
 .spread-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; padding: 4px 0; }
 .spread-card {
-  background: var(--bg-panel); border: 1px solid var(--border-dark);
+  background: rgba(4,6,16,0.55); border: 1px solid rgba(18,21,38,0.5);
   border-radius: var(--radius-lg); padding: 16px; cursor: pointer;
   transition: all 0.4s ease; text-align: center; position: relative; overflow: hidden;
 }
 .spread-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit;
-  opacity: 0; background: radial-gradient(circle at center, rgba(160,175,210,0.08), transparent);
+  opacity: 0; background: radial-gradient(circle at center, rgba(160,170,210,0.06), transparent);
   transition: opacity 0.4s ease;
 }
 .spread-card:hover { border-color: var(--border-accent); transform: translateY(-2px); box-shadow: var(--glow-accent); }
 .spread-card:hover::before { opacity: 1; }
-.spread-card.selected { border-color: var(--accent); box-shadow: 0 0 24px rgba(160,175,210,0.25); background: rgba(160,175,210,0.08); }
+.spread-card.selected { border-color: var(--accent); box-shadow: 0 0 24px rgba(160,170,210,0.25); background: rgba(160,170,210,0.06); }
 .spread-card-icon { font-size: 2rem; margin-bottom: 8px; }
 .spread-card-name { font-family: var(--font-display); font-size: 1rem; font-weight: 400; color: var(--text-accent); margin-bottom: 1px; letter-spacing: 0.05em; }
 .spread-card-name-zh { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; font-weight: 300; }
@@ -165,8 +328,39 @@ html, body {
 .question-input::placeholder { color: rgba(160, 175, 210, 0.35); }
 .question-hint {
   font-family: var(--font-body); font-size: 0.85rem; color: var(--text-dim);
-  text-align: center; font-style: italic; line-height: 1.7; opacity: 0.75;
-  letter-spacing: 0.03em;
+  text-align: center; font-style: italic; line-height: 1.8; opacity: 0.65;
+  letter-spacing: 0.04em;
+}
+
+/* Question refine hint — vague question suggestions */
+.question-refine-hint {
+  max-width: 500px; width: 100%; text-align: center;
+  opacity: 0; max-height: 0; overflow: hidden;
+  transition: opacity 0.4s ease, max-height 0.4s ease;
+}
+.question-refine-hint.visible {
+  opacity: 1; max-height: 300px;
+}
+.hint-label {
+  display: block; font-family: var(--font-body); font-size: 0.78rem;
+  color: var(--text-dim); opacity: 0.6; margin-bottom: 6px;
+  letter-spacing: 0.04em;
+}
+.hint-suggestion {
+  display: block; font-family: var(--font-body); font-size: 0.82rem;
+  color: var(--silver); line-height: 1.6; margin-bottom: 4px;
+  padding: 4px 10px; border-radius: 6px;
+  background: rgba(160,170,210,0.04);
+  border: 0.5px solid rgba(160,170,210,0.08);
+  transition: all 0.25s ease;
+}
+.hint-suggestion:hover {
+  background: rgba(160,170,210,0.08);
+  border-color: rgba(160,170,210,0.15);
+}
+.hint-suggestion-en {
+  font-size: 0.74rem; color: var(--text-dim); opacity: 0.6;
+  font-style: italic;
 }
 .context-input {
   width: 100%; max-width: 500px; min-height: 56px; background: var(--bg-panel);
@@ -216,8 +410,8 @@ html, body {
 /* Circle */
 .circle-container {
   width: 100%; height: 520px; border-radius: var(--radius-lg); overflow: hidden;
-  background: radial-gradient(ellipse at center, rgba(20,20,50,0.6), rgba(5,5,15,0.9));
-  border: 1px solid var(--border-dark); position: relative;
+  background: radial-gradient(ellipse at center, rgba(10,10,30,0.4), rgba(1,2,6,0.95));
+  border: none; position: relative;
 }
 .circle-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .circle-progress {
@@ -227,6 +421,21 @@ html, body {
 
 /* Card Display */
 .cards-display { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; padding: 8px 0; }
+
+/* Spread layout mode — cards positioned absolutely per diagram coords */
+.cards-display-layout {
+  position: relative; display: block;
+  width: 100%; min-height: 60vh;
+  margin: 0 auto; overflow: hidden; padding: 10px 0;
+}
+.cards-display-layout .card-reveal {
+  position: absolute; margin: 0;
+}
+
+/* Grid fallback mode */
+.cards-display-grid {
+  display: flex; flex-wrap: wrap; gap: 18px; justify-content: center;
+}
 .card-reveal { width: 170px; height: 255px; perspective: 1000px; cursor: pointer; }
 .card-inner {
   position: relative; width: 100%; height: 100%;
@@ -238,7 +447,7 @@ html, body {
   border-radius: 6px; box-shadow: 0 4px 30px rgba(0,0,0,0.5), 0 0 0 1.5px rgba(120,130,160,0.5);
 }
 .card-front {
-  transform: rotateY(180deg); background: #15122a;
+  transform: rotateY(180deg); background: #0f0d1e;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   overflow: hidden;
 }
@@ -308,10 +517,33 @@ html, body {
   background: rgba(175,185,205,0.08);
 }
 
-/* Interpretation */
-.interpretation { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: var(--radius-lg); padding: 20px; margin-top: 12px; }
-.interpretation h3 { font-family: var(--font-display); color: var(--text-accent); font-size: 1.2rem; text-align: center; margin-bottom: 14px; letter-spacing: 0.1em; }
-.ai-reading { font-family: var(--font-body); font-size: 1.05rem; line-height: 2; color: var(--text-primary); white-space: pre-wrap; }
+/* Interpretation — borderless, floating on starfield */
+.interpretation { background: none; border: none; border-radius: 0; padding: 20px 0; margin-top: 12px; }
+.interpretation h3 { font-family: var(--font-display); color: var(--text-accent); font-size: 1.2rem; text-align: center; margin-bottom: 14px; letter-spacing: 0.15em; }
+.ai-reading { font-family: var(--font-body); font-size: 1.05rem; line-height: 2.2; color: var(--text-primary); }
+
+/* Two-tier reading display */
+.reading-summary {
+  animation: summaryReveal 1.2s ease-out;
+  padding: 16px 0;
+}
+@keyframes summaryReveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reading-detail {
+  animation: detailReveal 1s ease-out 0.3s both;
+}
+@keyframes detailReveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Position marker in detailed reading */
+.reading-detail > div > div:first-child {
+  font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 4px;
+  text-transform: uppercase;
+}
 .loading-spinner { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 30px; color: var(--text-dim); font-family: var(--font-body); }
 .spinner {
   width: 40px; height: 40px; border: 2px solid var(--border-dark); border-top: 2px solid var(--border-accent);
@@ -319,10 +551,330 @@ html, body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Reading question reflection */
+.reading-question-reflect {
+  text-align: center; margin-top: 14px; padding: 12px;
+  background: rgba(160,170,210,0.03); border-radius: 8px;
+}
+.reading-question-en { font-size: 0.9rem; color: var(--text-dim); font-style: italic; margin-bottom: 2px; }
+.reading-question-en em { color: var(--text-accent); }
+.reading-question-zh { font-size: 0.85rem; color: var(--text-dim); opacity: 0.7; }
+.reading-question-type { font-size: 0.7rem; color: var(--text-accent); letter-spacing: 0.06em; margin-top: 4px; }
+
+/* Card reading additional blocks */
+.card-reading-court {
+  font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; margin: 4px 0;
+}
+.card-reading-court-question {
+  font-size: 0.8rem; color: var(--text-accent); font-style: italic; margin: 2px 0 6px;
+}
+.card-reading-element {
+  font-size: 0.75rem; color: var(--text-dim); opacity: 0.7; margin: 2px 0 4px;
+  letter-spacing: 0.04em;
+}
+
+/* Guidance zh block */
+.zh-block { font-size: 0.9rem; }
+
+/* ── Reading Output: Structured & Narrative ── */
+.reading-mode-toggle {
+  display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.btn-mode-toggle {
+  background: transparent; border: 1px solid var(--border-dark); color: var(--text-dim);
+  padding: 6px 18px; border-radius: 16px; font-family: var(--font-display); font-size: 0.8rem;
+  cursor: pointer; transition: all 0.25s ease; letter-spacing: 0.06em;
+}
+.btn-mode-toggle:hover { border-color: var(--border-accent); color: var(--text-accent); }
+.btn-mode-toggle.active {
+  border-color: var(--border-accent); color: var(--text-accent);
+  background: rgba(160,175,210,0.08); box-shadow: 0 0 12px rgba(160,170,210,0.08);
+}
+
+.reading-section { margin-bottom: 24px; }
+.reading-section-title {
+  font-family: var(--font-display); font-size: 1rem; color: var(--text-accent);
+  text-align: center; letter-spacing: 0.12em; margin-bottom: 12px;
+}
+
+/* Opening / Closing prose */
+.reading-prose {
+  font-family: var(--font-body); font-size: 1.05rem; line-height: 2.2;
+  color: var(--text-primary); text-align: center; font-style: italic;
+  max-width: 620px; margin: 0 auto 6px;
+}
+.reading-prose-zh {
+  font-family: var(--font-body); font-size: 0.95rem; line-height: 2;
+  color: var(--text-dim); text-align: center;
+  max-width: 560px; margin: 0 auto;
+}
+
+/* Insights (step 1-4 analysis) */
+.reading-insight {
+  font-family: var(--font-body); font-size: 0.95rem; line-height: 1.9;
+  color: var(--text-primary); text-align: center; margin-bottom: 2px;
+}
+.reading-insight-zh {
+  font-family: var(--font-body); font-size: 0.88rem; line-height: 1.8;
+  color: var(--text-dim); text-align: center; margin-bottom: 10px;
+}
+
+/* ── Details/Summary — Collapsible chapters ── */
+.reading-details {
+  margin-bottom: 16px; border: 0.5px solid rgba(160,170,210,0.1);
+  border-radius: 8px; overflow: hidden;
+  background: rgba(18,21,38,0.3);
+  transition: border-color 0.3s ease;
+}
+.reading-details[open] { border-color: rgba(160,170,210,0.2); }
+.reading-details > summary {
+  cursor: pointer; padding: 10px 16px;
+  font-family: var(--font-display); font-size: 0.95rem; color: var(--text-accent);
+  text-align: center; letter-spacing: 0.1em; outline: none;
+  list-style: none; user-select: none;
+  transition: color 0.3s ease, background 0.3s ease;
+}
+.reading-details > summary::-webkit-details-marker { display: none; }
+.reading-details > summary::marker { display: none; content: ''; }
+.reading-details > summary:hover { color: var(--silver); background: rgba(160,170,210,0.04); }
+.reading-details > summary::before {
+  content: '▸ '; display: inline-block; transition: transform 0.3s ease;
+  font-size: 0.75rem; margin-right: 4px; opacity: 0.6;
+}
+.reading-details[open] > summary::before { transform: rotate(90deg); }
+.reading-details > .reading-section { padding: 10px 16px 16px; }
+
+/* ── Plain Summary & Advice (Layer 1) ── */
+.reading-plain-summary {
+  margin-bottom: 20px; padding: 16px 20px;
+  background: rgba(160,170,210,0.06); border-radius: 10px;
+  border: 1px solid rgba(160,170,210,0.15);
+}
+.reading-plain-summary .reading-prose-zh {
+  font-family: var(--font-body); font-size: 1rem; line-height: 2;
+  color: var(--text-primary); font-weight: 400;
+  font-style: normal; max-width: 600px;
+}
+.reading-plain-summary .reading-prose {
+  font-size: 0.92rem; opacity: 0.75; margin-top: 4px;
+}
+.plain-summary-label-zh {
+  font-family: var(--font-display); font-size: 0.9rem;
+  color: var(--text-accent); letter-spacing: 0.08em; margin-bottom: 4px;
+  opacity: 0.9;
+}
+.plain-summary-label-en {
+  font-family: var(--font-display); font-size: 0.78rem;
+  color: var(--text-accent); letter-spacing: 0.06em; margin-top: 10px; margin-bottom: 4px;
+  opacity: 0.65;
+}
+/* Backwards-compat: old mixed-label */
+.plain-summary-label {
+  font-family: var(--font-display); font-size: 0.85rem;
+  color: var(--text-accent); letter-spacing: 0.06em; margin-bottom: 8px;
+}
+
+.reading-plain-advice {
+  margin-top: 18px; padding: 14px 18px;
+  background: rgba(160,170,210,0.04); border-radius: 8px;
+  border-left: 2px solid var(--text-accent);
+}
+.plain-advice-label {
+  font-family: var(--font-display); font-size: 0.82rem;
+  color: var(--text-accent); letter-spacing: 0.05em; margin-bottom: 6px;
+}
+
+/* ── Card context insight (template-driven) ── */
+.card-reading-context-insight {
+  font-family: var(--font-body); font-size: 0.9rem; line-height: 1.8;
+  color: var(--text-dim); margin: 6px 0 2px;
+  padding: 6px 10px; border-left: 2px solid rgba(160,170,210,0.3);
+}
+.card-reading-context-insight-en {
+  font-family: var(--font-body); font-size: 0.8rem; line-height: 1.7;
+  color: var(--text-dim); opacity: 0.6; margin-bottom: 8px;
+  padding: 0 10px; font-style: italic;
+}
+
+/* Element bars */
+.element-bars { max-width: 400px; margin: 0 auto 10px; }
+.element-bar-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+}
+.element-label {
+  font-family: var(--font-display); font-size: 0.75rem; color: var(--text-dim);
+  width: 80px; text-align: right; letter-spacing: 0.04em; flex-shrink: 0;
+}
+.element-bar-track {
+  flex: 1; height: 6px; background: rgba(18,21,38,0.6); border-radius: 3px; overflow: hidden;
+}
+.element-bar-fill {
+  height: 100%; border-radius: 3px; transition: width 1.2s ease-out;
+}
+.element-pct {
+  font-family: var(--font-display); font-size: 0.75rem; color: var(--text-dim); width: 36px; flex-shrink: 0;
+}
+.element-summary, .element-summary-zh {
+  text-align: center; font-size: 0.9rem; line-height: 1.8; margin-bottom: 2px;
+}
+.element-summary { color: var(--text-primary); font-style: italic; }
+.element-summary-zh { color: var(--text-dim); }
+.element-advice { margin-top: 8px; text-align: center; }
+.element-advice-item {
+  font-size: 0.85rem; color: var(--text-dim); line-height: 1.8; margin-bottom: 4px;
+}
+.element-advice-item strong { color: var(--text-accent); }
+.element-color-note {
+  text-align: center; font-size: 0.82rem; color: var(--text-dim);
+  opacity: 0.6; font-style: italic; margin-top: 6px; line-height: 1.7;
+}
+.element-color-note .zh { opacity: 0.6; }
+
+/* Card reading blocks (structured mode) */
+.card-reading {
+  margin-bottom: 20px; padding: 0 0 16px 16px;
+  border-left: 1.5px solid rgba(160,170,210,0.2);
+}
+.card-reading-position {
+  font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.card-reading-header {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.card-reading-name {
+  font-family: var(--font-display); font-size: 1.05rem; color: var(--text-accent); letter-spacing: 0.05em;
+}
+.card-reading-en {
+  font-size: 0.85rem; color: var(--text-dim); font-family: var(--font-body); font-style: italic;
+}
+.card-reading-orientation {
+  font-size: 0.75rem; padding: 2px 10px; border-radius: 10px;
+}
+.card-reading-orientation.upright {
+  background: rgba(122,184,160,0.1); color: #7ab8a0;
+  border: 1px solid rgba(122,184,160,0.2);
+}
+.card-reading-orientation.reversed {
+  background: rgba(201,122,90,0.1); color: #c97a5a;
+  border: 1px solid rgba(201,122,90,0.2);
+}
+.card-reading-context {
+  font-size: 0.85rem; color: var(--text-dim); font-style: italic; line-height: 1.7; margin: 6px 0;
+}
+.card-reading-context .zh { color: var(--text-dim); opacity: 0.7; }
+.card-reading-domain { font-size: 0.95rem; line-height: 2; color: var(--text-primary); }
+.card-reading-meaning { font-size: 0.95rem; line-height: 1.9; color: var(--text-primary); opacity: 0.85; }
+.card-reading-symbolism { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; margin-top: 4px; }
+.card-reading-symbolism .label { color: var(--text-accent); opacity: 0.7; }
+.domain-tag {
+  display: inline-block; font-size: 0.7rem; padding: 1px 8px; border-radius: 8px;
+  background: rgba(160,170,210,0.08); color: var(--text-accent); margin-right: 6px;
+  letter-spacing: 0.04em;
+}
+
+/* Reversal note */
+.reversal-note {
+  font-size: 0.75rem; color: var(--text-dim); margin: 2px 0 6px;
+}
+.reversal-method {
+  display: inline-block; padding: 1px 8px; border-radius: 8px;
+  background: rgba(160,170,210,0.06); margin-right: 6px; color: var(--text-accent);
+}
+
+/* Combo cards */
+.combo-card {
+  margin-bottom: 14px; padding: 14px 16px;
+  border: 1px solid rgba(160,170,210,0.12); border-radius: 8px;
+  background: rgba(160,170,210,0.02);
+}
+.combo-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.combo-card-name { font-family: var(--font-display); font-size: 0.9rem; color: var(--text-accent); }
+.combo-relation { font-size: 0.7rem; color: var(--text-dim); padding: 2px 10px; border-radius: 10px; background: rgba(160,170,210,0.06); }
+.combo-meaning { font-size: 0.9rem; line-height: 1.8; color: var(--text-primary); }
+.combo-advice { font-size: 0.85rem; line-height: 1.7; color: var(--text-dim); font-style: italic; margin-top: 6px; }
+
+/* Guidance */
+.guidance-item {
+  font-size: 0.95rem; line-height: 2; color: var(--text-primary); text-align: center;
+  margin-bottom: 10px; max-width: 600px; margin-left: auto; margin-right: auto;
+}
+.guidance-item .zh { color: var(--text-dim); font-size: 0.9rem; }
+
+/* Summary */
+.summary-line {
+  text-align: center; font-size: 0.9rem; line-height: 1.8; margin-bottom: 2px;
+  color: var(--text-primary);
+}
+.summary-domain { font-family: var(--font-display); color: var(--text-accent); letter-spacing: 0.08em; }
+.summary-zh { color: var(--text-dim); font-size: 0.85rem; }
+.reading-divider {
+  text-align: center; margin: 20px 0; color: var(--text-dim);
+  opacity: 0.35; letter-spacing: 0.25em; font-size: 0.75rem;
+}
+
+/* Narrative mode */
+.narrative-reading { max-width: 640px; margin: 0 auto; }
+.narrative-text {
+  font-family: var(--font-body); font-size: 1.05rem; line-height: 2.3;
+  color: var(--text-primary); text-align: justify; margin-bottom: 14px;
+}
+.narrative-text-zh {
+  font-family: var(--font-body); font-size: 0.92rem; line-height: 2;
+  color: var(--text-dim); text-align: justify; margin-bottom: 18px;
+}
+.narrative-text strong { color: var(--text-accent); font-weight: 500; }
+.narrative-text em { color: var(--text-dim); font-style: italic; }
+.narrative-text-zh strong { color: var(--text-accent); font-weight: 500; }
+.narrative-elements { margin-top: 20px; }
+
+/* Timing */
+.reading-timing { text-align: center; }
+.timing-text { font-size: 0.95rem; line-height: 1.9; color: var(--text-primary); }
+.timing-text-zh { font-size: 0.88rem; line-height: 1.8; color: var(--text-dim); }
+.timing-disclaimer {
+  font-size: 0.75rem; color: var(--text-dim); opacity: 0.6; margin-top: 10px;
+  font-style: italic;
+}
+.timing-disclaimer .zh { opacity: 0.7; }
+
+/* Timing prompt — persistent floating prompt at bottom of reading */
+.timing-prompt {
+  text-align: center; margin-top: 24px; padding: 18px 20px;
+  border: 0.8px solid rgba(160,170,210,0.12);
+  border-radius: 12px;
+  background: rgba(160,170,210,0.02);
+  animation: timingPromptIn 0.6s ease-out;
+}
+@keyframes timingPromptIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.timing-prompt-text {
+  font-family: var(--font-body); font-size: 0.9rem;
+  color: var(--text-dim); margin-bottom: 12px;
+  letter-spacing: 0.04em;
+}
+.timing-prompt-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+}
+.timing-result {
+  margin-top: 16px; opacity: 0; max-height: 0; overflow: hidden;
+  transition: opacity 0.5s ease, max-height 0.5s ease;
+}
+.timing-result.visible {
+  opacity: 1; max-height: 800px;
+}
+
+/* Generic zh span helper */
+.zh { font-size: 0.92em; opacity: 0.75; }
+
 /* History */
 .history-list { display: flex; flex-direction: column; gap: 10px; }
 .history-item {
-  background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: var(--radius-lg);
+  background: rgba(4,6,16,0.55); border: 1px solid rgba(18,21,38,0.5); border-radius: var(--radius-lg);
   padding: 14px 16px; cursor: pointer; transition: all 0.2s ease;
 }
 .history-item:hover { border-color: var(--border-accent); box-shadow: var(--glow-accent); }
@@ -346,9 +898,9 @@ html, body {
 .card-modal.show { display: flex; }
 .card-modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
 .card-modal-content {
-  position: relative; background: var(--bg-panel); border: 1px solid var(--border-accent);
+  position: relative; background: rgba(8,10,24,0.95); border: 1px solid var(--border-accent);
   border-radius: var(--radius-lg); padding: 28px 24px; max-width: 500px; width: 90%;
-  max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.6), var(--glow-accent);
+  max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 50px rgba(0,0,0,0.7), var(--glow-accent);
   animation: modalIn 300ms ease;
 }
 @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -380,7 +932,7 @@ html, body {
   position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
   background: var(--bg-panel); border: 1px solid var(--border-accent); color: var(--text-accent);
   padding: 10px 24px; border-radius: 20px; font-family: var(--font-body); font-size: 0.9rem;
-  z-index: 100; opacity: 0; transition: opacity 300ms ease; pointer-events: none;
+  z-index: 300; opacity: 0; transition: opacity 300ms ease; pointer-events: none;
 }
 .toast.show { opacity: 1; }
 
@@ -400,14 +952,16 @@ html, body {
   .circle-header { flex-direction: column; align-items: flex-start; }
   .section-title { font-size: 1.1rem; }
   .mode-options { flex-direction: column; align-items: center; }
-  .welcome-title { font-size: 1.5rem; }
-  .welcome-poem { font-size: 0.85rem; }
-  .welcome-poem span { font-size: 0.72rem; }
-  .welcome-steps { flex-direction: column; gap: 4px; }
+	.welcome-title { font-size: 1.5rem; }
+	.poem-stanza { font-size: 0.85rem; line-height: 1.9; }
+	.poem-stanza-zh { font-size: 0.78rem; line-height: 1.8; }
+	.welcome-constellation { width: 200px; height: 140px; top: -20px; }
   .welcome-step-arrow { transform: rotate(90deg); }
   .btn-gate { padding: 12px 28px; font-size: 0.95rem; }
   .question-input, .context-input { max-width: 100%; }
   .reveal-actions { flex-direction: column; align-items: center; }
+  .number-inputs input { width: 48px; height: 42px; font-size: 1rem; }
+  .compass-hint { font-size: 0.7rem; }
 }
 
 /* Extra small screens (iPhone SE, etc.) */
@@ -419,3 +973,1005 @@ html, body {
   .welcome-title { font-size: 1.3rem; }
   .btn-gate { padding: 10px 20px; font-size: 0.85rem; }
 }
+
+/* ========================================
+   Stellar Compass — 星辰罗盘
+   Maximalist medieval astrolabe design
+   ======================================== */
+
+.spread-select-page {
+  flex-direction: column; align-items: center; gap: 6px;
+  padding: 0;
+}
+
+/* ── Compass Container ── */
+.compass-container {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 0; flex: 1; min-height: 0;
+  position: relative;
+}
+.compass-wrapper {
+  position: relative; width: var(--compass-size); height: var(--compass-size);
+  margin: 0 auto; flex-shrink: 0;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease;
+}
+
+/* ── 3D Lay-Flat Animation ── */
+.compass-wrapper.laying-flat {
+  transform: perspective(800px) rotateX(78deg) translateY(400px) scale(0.42);
+  pointer-events: none;
+  transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* ── Rotation Keyframes ── */
+@keyframes compassRotateCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes compassRotateCCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+@keyframes medallionPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(184,192,216,0.2), inset 0 0 12px rgba(184,192,216,0.06); }
+  50% { box-shadow: 0 0 40px rgba(184,192,216,0.45), inset 0 0 20px rgba(184,192,216,0.12); }
+}
+
+/* ── Rotating Body ── */
+.compass-body {
+  position: absolute; inset: 0; border-radius: 50%;
+  animation: compassRotateCW 30s linear infinite;
+}
+/* Directional markers — embedded stars on different tracks */
+.compass-body::after {
+  content: '';
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--silver-bright);
+  box-shadow:
+    0 0 6px 2px rgba(184,192,216,0.7),
+    0 0 18px 5px rgba(184,192,216,0.3);
+  z-index: 2; pointer-events: none;
+}
+
+/* ── Decorative Rings (inside rotating body) ── */
+.compass-ring {
+  position: absolute; border-radius: 50%; pointer-events: none;
+}
+
+/* Ring 0: Outer tick ring — dense 2° ticks + 12 constellation markers */
+.compass-ring-0 {
+  inset: 2px;
+  border: 1.5px solid var(--silver-line);
+  box-shadow: 0 0 40px rgba(184,192,216,0.08), inset 0 0 40px rgba(184,192,216,0.04);
+}
+/* Dense 2° minor ticks */
+.compass-ring-0::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-conic-gradient(
+    transparent 0deg 1.6deg,
+    var(--silver-line) 1.6deg 2deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent calc(100% - 5px), black calc(100% - 4px));
+  mask: radial-gradient(circle, transparent calc(100% - 5px), black calc(100% - 4px));
+  opacity: 0.5;
+}
+/* Major tick every 30° + 12 constellation bright stars */
+.compass-ring-0::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-conic-gradient(
+    transparent 0deg 28deg,
+    var(--silver-line-strong) 28deg 30deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent calc(100% - 7px), black calc(100% - 5px));
+  mask: radial-gradient(circle, transparent calc(100% - 7px), black calc(100% - 5px));
+  opacity: 0.9;
+}
+
+/* Ring 1: Arabic geometric filigree — interlaced diamond pattern */
+.compass-ring-1 {
+  inset: 14px;
+  border: 0.6px solid var(--silver-line);
+  opacity: 0.55;
+}
+.compass-ring-1::before {
+  content: ''; position: absolute; inset: 2px; border-radius: 50%;
+  background: repeating-conic-gradient(
+    transparent 0deg 12deg,
+    var(--silver-line) 12deg 12.5deg,
+    transparent 12.5deg 17deg,
+    var(--silver-line) 17deg 17.5deg,
+    transparent 17.5deg 30deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent calc(100% - 4px), black calc(100% - 2px));
+  mask: radial-gradient(circle, transparent calc(100% - 4px), black calc(100% - 2px));
+  opacity: 0.4;
+}
+.compass-ring-1::after {
+  content: ''; position: absolute; inset: 5px; border-radius: 50%;
+  border: 0.4px dotted var(--silver-line);
+  opacity: 0.3;
+}
+
+/* Ring 2: Inner track A — CW with 7 constellation stars + thread lines */
+.compass-ring-2 {
+  inset: 28px;
+  border: 0.8px solid var(--silver-line);
+  opacity: 0.45;
+  animation: compassRotateCW 55s linear infinite;
+}
+.compass-ring-2::before {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  border: 0.4px solid var(--silver-line);
+  opacity: 0.3;
+}
+/* Seven embedded stars with subtle constellation thread lines */
+.compass-ring-2::after {
+  content: '';
+  position: absolute;
+  inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 4%, var(--silver-bright) 1.3px, transparent 2px),
+    radial-gradient(circle at 88% 60%, var(--silver-bright) 1.1px, transparent 1.8px),
+    radial-gradient(circle at 78% 28%, var(--silver) 1px, transparent 1.6px),
+    radial-gradient(circle at 12% 58%, var(--silver) 1px, transparent 1.6px),
+    radial-gradient(circle at 68% 80%, var(--silver-pale) 0.9px, transparent 1.5px),
+    radial-gradient(circle at 32% 18%, var(--silver-pale) 0.8px, transparent 1.4px),
+    radial-gradient(circle at 22% 84%, var(--silver-pale) 0.8px, transparent 1.4px);
+  pointer-events: none;
+}
+
+/* Ring 3: Inner track B — independent CCW rotation with 2 embedded stars */
+.compass-ring-3 {
+  inset: 38px;
+  border: 0.6px solid var(--silver-line);
+  opacity: 0.35;
+  animation: compassRotateCCW 25s linear infinite;
+}
+/* Four embedded stars on ring-3 */
+.compass-ring-3::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 75% 18%, var(--silver-bright) 1.4px, transparent 2px),
+    radial-gradient(circle at 22% 82%, var(--silver) 1px, transparent 1.6px),
+    radial-gradient(circle at 60% 78%, var(--silver-pale) 0.9px, transparent 1.5px),
+    radial-gradient(circle at 38% 14%, var(--silver-pale) 0.8px, transparent 1.4px);
+  pointer-events: none;
+}
+/* Crosshair on ring 3 */
+.compass-ring-3::after {
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: transparent;
+  width: 55%; height: 0.4px;
+  box-shadow:
+    0.4px 0 0 var(--silver-line),
+    -0.4px 0 0 var(--silver-line),
+    0 0.4px 0 var(--silver-line),
+    0 -0.4px 0 var(--silver-line);
+  opacity: 0.15;
+}
+
+/* Ring 4: Star track B — CW with 6 constellation stars */
+.compass-ring-4 {
+  inset: 48px;
+  border: 0.4px solid var(--silver-line);
+  opacity: 0.4;
+  animation: compassRotateCW 42s linear infinite;
+}
+.compass-ring-4::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 7%, var(--silver-bright) 1.2px, transparent 2px),
+    radial-gradient(circle at 84% 52%, var(--silver) 1px, transparent 1.6px),
+    radial-gradient(circle at 18% 46%, var(--silver) 1px, transparent 1.6px),
+    radial-gradient(circle at 65% 82%, var(--silver-pale) 0.9px, transparent 1.5px),
+    radial-gradient(circle at 35% 22%, var(--silver-pale) 0.9px, transparent 1.5px),
+    radial-gradient(circle at 92% 20%, var(--silver-pale) 0.7px, transparent 1.3px);
+  pointer-events: none;
+}
+
+/* Ring 4b: Counter-rotating star track — CCW, 4 bright scattered stars */
+.compass-ring-4b {
+  inset: 54px;
+  border: none;
+  opacity: 0.5;
+  animation: compassRotateCCW 50s linear infinite;
+}
+.compass-ring-4b::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 10%, var(--silver-bright) 1.5px, transparent 2.2px),
+    radial-gradient(circle at 72% 75%, var(--silver-bright) 1.3px, transparent 2px),
+    radial-gradient(circle at 18% 68%, var(--silver) 1.1px, transparent 1.8px),
+    radial-gradient(circle at 85% 35%, var(--silver) 1px, transparent 1.6px);
+  pointer-events: none;
+}
+
+/* Ring 4c: Slow inner star track — CW, 3 large luminous stars */
+.compass-ring-4c {
+  inset: 58px;
+  border: 0.3px solid var(--silver-line);
+  opacity: 0.45;
+  animation: compassRotateCW 65s linear infinite;
+}
+.compass-ring-4c::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 45% 6%, var(--silver-bright) 2px, transparent 3px),
+    radial-gradient(circle at 80% 58%, var(--silver) 1.6px, transparent 2.5px),
+    radial-gradient(circle at 15% 50%, var(--silver) 1.4px, transparent 2.2px);
+  pointer-events: none;
+}
+
+/* ── Rete: Astrolabe cut-out star map overlay (slow CW rotation) ── */
+.compass-rete {
+  position: absolute; inset: 8px; border-radius: 50%;
+  pointer-events: none; z-index: 1;
+  animation: compassRotateCW 120s linear infinite;
+  opacity: 0.35;
+}
+/* Arc pointers — curved radial gradient slivers */
+.compass-rete::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(ellipse 3px 40px at 50% 15%, transparent 30%, var(--silver-line-strong) 30.5%, transparent 32%),
+    radial-gradient(ellipse 3px 50px at 22% 65%, transparent 30%, var(--silver-line-strong) 30.5%, transparent 32%),
+    radial-gradient(ellipse 3px 35px at 78% 55%, transparent 30%, var(--silver-line-strong) 30.5%, transparent 32%);
+  pointer-events: none;
+}
+/* Large rete stars — astrolabe flame pointers */
+.compass-rete::after {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 12%, var(--silver-bright) 2.5px, transparent 4px),
+    radial-gradient(circle at 22% 62%, var(--silver) 2px, transparent 3.5px),
+    radial-gradient(circle at 78% 52%, var(--silver) 2.2px, transparent 3.5px),
+    radial-gradient(circle at 38% 78%, var(--silver-pale) 1.8px, transparent 3px);
+  pointer-events: none;
+}
+
+/* ── Medallion Layer (fixed, not rotating) ── */
+.compass-medallion-layer {
+  position: absolute; inset: 54px; border-radius: 50%;
+  z-index: 3; pointer-events: none;
+}
+
+/* Category medallion — circular jewel embedded in ring */
+.compass-cat-medallion {
+  position: absolute;
+  width: 62px; height: 62px; border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--silver-line-strong);
+  background: radial-gradient(circle at 40% 35%, rgba(30,27,50,0.95), rgba(10,8,20,0.9));
+  box-shadow: 0 0 16px rgba(184,192,216,0.15), inset 0 0 10px rgba(184,192,216,0.05);
+  cursor: pointer; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: auto;
+}
+.compass-cat-medallion:hover {
+  border-color: var(--silver-bright);
+  box-shadow: 0 0 28px rgba(184,192,216,0.35), inset 0 0 16px rgba(184,192,216,0.1);
+  transform: translate(-50%, -50%) scale(1.12);
+}
+.compass-cat-medallion.active {
+  border-color: var(--silver-bright);
+  animation: medallionPulse 2s ease-in-out infinite;
+}
+.compass-cat-icon {
+  font-size: 0.65rem; color: var(--silver-dim); pointer-events: none;
+  line-height: 1; opacity: 0.5;
+}
+.compass-cat-text {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  line-height: 1.15; pointer-events: none;
+}
+.compass-cat-line {
+  font-family: var(--font-body); font-size: 0.7rem; color: var(--silver);
+  letter-spacing: 0.06em;
+}
+
+
+/* ── Inner Decoration Ring 5 (fixed) ── */
+.compass-ring-5 {
+  position: absolute; inset: 62px; border-radius: 50%;
+  border: 0.5px solid var(--silver-line);
+  opacity: 0.25; z-index: 1; pointer-events: none;
+}
+.compass-ring-5::before {
+  content: ''; position: absolute; inset: 4px; border-radius: 50%;
+  border: 0.3px dashed var(--silver-line);
+  opacity: 0.3;
+}
+
+/* ── Center Medallion — Multi-layer corona glow ── */
+.compass-center {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 70px; height: 70px; border-radius: 50%; z-index: 4; cursor: pointer;
+  border: 1.5px solid var(--silver-line-strong);
+  background: radial-gradient(circle at 45% 40%, rgba(30,27,50,0.98), rgba(8,6,18,0.97));
+  box-shadow:
+    0 0 15px rgba(184,192,216,0.08),
+    0 0 40px rgba(184,192,216,0.06),
+    0 0 70px rgba(184,192,216,0.03),
+    inset 0 0 20px rgba(184,192,216,0.04);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.6s ease;
+}
+.compass-center::before {
+  content: '';
+  position: absolute; inset: -6px; border-radius: 50%;
+  border: 0.4px solid rgba(184,192,216,0.15);
+  pointer-events: none;
+}
+.compass-center::after {
+  content: '';
+  position: absolute; inset: -14px; border-radius: 50%;
+  border: 0.3px solid rgba(184,192,216,0.08);
+  pointer-events: none;
+}
+.compass-center:hover {
+  box-shadow:
+    0 0 25px rgba(184,192,216,0.15),
+    0 0 60px rgba(184,192,216,0.1),
+    0 0 100px rgba(184,192,216,0.05),
+    inset 0 0 30px rgba(184,192,216,0.08);
+}
+.compass-center.pulse {
+  box-shadow:
+    0 0 35px rgba(184,192,216,0.3),
+    0 0 80px rgba(184,192,216,0.18),
+    0 0 140px rgba(184,192,216,0.08),
+    inset 0 0 40px rgba(184,192,216,0.12);
+}
+.compass-center-symbol {
+  font-size: 1.5rem; color: var(--silver);
+  transition: transform 0.6s ease; line-height: 1;
+}
+
+/* ── Compass Hint ── */
+.compass-hint {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, calc(var(--compass-size) / 2 + 14px));
+  font-family: var(--font-body); font-size: 0.85rem; color: var(--silver-dim);
+  text-align: center; letter-spacing: 0.06em; opacity: 0; transition: opacity 0.6s ease;
+  white-space: nowrap; z-index: 5;
+}
+.compass-hint.visible { opacity: 0.6; }
+
+/* ── Heraldic Corner Decorations ── */
+.compass-heraldry {
+  position: absolute; z-index: 0; pointer-events: none;
+  transform: translate(-50%, -50%);
+  font-size: 0.5rem; color: var(--silver-dim);
+  opacity: 0.3;
+}
+.compass-heraldry-n, .compass-heraldry-s,
+.compass-heraldry-e, .compass-heraldry-w {
+  font-size: 0.65rem; opacity: 0.4;
+}
+
+/* ========================================
+   Stellar Book Modal — 星辰书页弹窗
+   ======================================== */
+
+.book-modal {
+  position: fixed; inset: 0; z-index: 210; display: none;
+  align-items: center; justify-content: center;
+}
+.book-modal.show { display: flex; }
+.book-modal-backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+}
+
+/* ── Hologram Mode: open book floats above still-rotating compass ── */
+.book-modal.hologram-mode {
+  background: transparent;
+  pointer-events: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8vh;
+}
+.book-modal.hologram-mode .book-modal-backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+/* Semi-transparent open book, horizontal layout, breathing float */
+.book-modal.hologram-mode .book-container {
+  pointer-events: auto;
+  position: relative;
+  max-width: 600px;
+  width: 94vw;
+  flex-direction: row;
+  background: rgba(14,12,26,0.72);
+  border: 1px solid rgba(184,192,216,0.35);
+  border-radius: 4px;
+  box-shadow:
+    0 0 30px rgba(184,192,216,0.12),
+    0 0 60px rgba(184,192,216,0.05),
+    inset 0 0 40px rgba(184,192,216,0.03);
+  animation: hologramFloat 3.8s ease-in-out infinite;
+  overflow: visible;
+}
+/* Projection beam — subtle glow from book down toward compass */
+.book-modal.hologram-mode .book-container::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 180px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(184,192,216,0.10) 0%, rgba(184,192,216,0.03) 35%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+  animation: projectionPulse 2.2s ease-in-out infinite;
+}
+/* Subtle spine visible */
+.book-modal.hologram-mode .book-spine { display: block; opacity: 0.35; }
+/* Compact pages — constrained height, internally scrollable */
+.book-modal.hologram-mode .book-page {
+  padding: 16px 18px;
+  aspect-ratio: 2 / 3;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+.book-modal.hologram-mode .book-page-left {
+  border-right: none;
+}
+/* Internal elements — scaled for hologram readability */
+.book-modal.hologram-mode .book-diagram-container { height: 220px; margin: 2px 0; }
+.book-modal.hologram-mode .diagram-card { width: 26px; height: 36px; }
+.book-modal.hologram-mode .diagram-card .diagram-card-num { font-size: 0.6rem; }
+.book-modal.hologram-mode .book-diagram-divider { margin: 7px auto; }
+.book-modal.hologram-mode .book-spread-icon { font-size: 1.2rem; margin-bottom: 2px; }
+.book-modal.hologram-mode .book-spread-name { font-size: 1.0rem; }
+.book-modal.hologram-mode .book-spread-name-zh { font-size: 0.88rem; margin-bottom: 4px; }
+.book-modal.hologram-mode .book-spread-count { font-size: 0.8rem; margin-bottom: 5px; }
+.book-modal.hologram-mode .book-spread-positions { flex: 1; }
+.book-modal.hologram-mode .book-position-item { padding: 2px 0; }
+.book-modal.hologram-mode .book-position-num { font-size: 0.78rem; width: 17px; height: 17px; }
+.book-modal.hologram-mode .book-position-name { font-size: 0.82rem; }
+.book-modal.hologram-mode .book-position-desc { font-size: 0.78rem; }
+.book-modal.hologram-mode .book-position-desc-zh { font-size: 0.74rem; }
+.book-modal.hologram-mode .book-spread-bestfor { margin-bottom: 5px; }
+.book-modal.hologram-mode .book-spread-bestfor-zh { font-size: 0.85rem; }
+.book-modal.hologram-mode .book-spread-bestfor-en { font-size: 0.88rem; }
+.book-modal.hologram-mode .book-spread-desc { font-size: 0.9rem; max-height: none; line-height: 1.6; }
+.book-modal.hologram-mode .book-page-nav { margin-top: 5px; padding: 5px 0; }
+.book-modal.hologram-mode .btn-page-prev,
+.book-modal.hologram-mode .btn-page-next { font-size: 0.82rem; padding: 4px 10px; }
+.book-modal.hologram-mode .book-page-indicator { font-size: 0.82rem; }
+.book-modal.hologram-mode .book-actions { margin-top: 5px; padding-top: 5px; }
+.book-modal.hologram-mode .btn-book-select { font-size: 0.9rem; padding: 7px 22px; }
+.book-modal.hologram-mode .btn-book-close { font-size: 0.82rem; padding: 7px 14px; }
+@keyframes hologramFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes hologramRise {
+  from { opacity: 0; transform: translateY(100px) scale(0.8); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes projectionPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ── Confirm Dialog (半透明，浮在罗盘上方) ── */
+.confirm-dialog {
+  position: fixed; inset: 0; z-index: 220; display: none;
+  align-items: center; justify-content: center;
+}
+.confirm-dialog.show { display: flex; }
+.confirm-dialog-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(1px);
+}
+.confirm-dialog-card {
+  position: relative; z-index: 1;
+  background: radial-gradient(ellipse at 50% 30%, rgba(25,22,45,0.92), rgba(10,8,20,0.88));
+  border: 1.2px solid var(--silver-line-strong);
+  border-radius: 8px;
+  padding: 28px 36px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(184,192,216,0.15), 0 8px 40px rgba(0,0,0,0.5);
+  animation: confirmSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 340px; width: 90vw;
+}
+@keyframes confirmSlideIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.confirm-dialog-icon {
+  font-size: 2rem; color: var(--silver); margin: 0 0 6px;
+}
+.confirm-dialog-name {
+  font-family: var(--font-display); font-size: 1.1rem; color: var(--silver-bright);
+  letter-spacing: 0.06em; margin: 0 0 2px;
+}
+.confirm-dialog-name-zh {
+  font-family: var(--font-body); font-size: 0.9rem; color: var(--silver-dim);
+  margin: 0 0 6px;
+}
+.confirm-dialog-count {
+  font-family: var(--font-display); font-size: 0.75rem; color: var(--silver-pale);
+  letter-spacing: 0.06em; margin: 0 0 12px;
+}
+.confirm-dialog-prompt {
+  font-family: var(--font-body); font-size: 0.9rem; color: var(--text-dim);
+  margin: 0 0 18px; line-height: 1.6;
+}
+.confirm-dialog-actions {
+  display: flex; gap: 12px; justify-content: center;
+}
+
+/* ── Open Book ── */
+.book-container {
+  position: relative; width: min(780px, 92vw);
+  background: var(--panel-deep);
+  border: 1.5px solid var(--silver-line-strong);
+  border-radius: 4px;
+  box-shadow: var(--panel-shadow), var(--silver-glow);
+  display: flex; flex-direction: row;
+  animation: bookRiseFromCompass 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+@keyframes bookOpen {
+  from { opacity: 0; transform: scale(0.85) rotateX(15deg); }
+  to { opacity: 1; transform: scale(1) rotateX(0deg); }
+}
+@keyframes bookRiseFromCompass {
+  from { opacity: 0; transform: translateY(60px) scale(0.75); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pageFlipOut {
+  to { opacity: 0; transform: rotateY(-25deg) scale(0.9); }
+}
+@keyframes pageFlipIn {
+  from { opacity: 0; transform: rotateY(25deg) scale(0.9); }
+  to { opacity: 1; transform: rotateY(0) scale(1); }
+}
+.book-page-flip-out {
+  animation: pageFlipOut 0.2s ease-in forwards;
+}
+.book-page-flip-in {
+  animation: pageFlipIn 0.25s ease-out forwards;
+}
+
+/* ── Book Spine ── */
+.book-spine {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 1.5px;
+  background: linear-gradient(to bottom, transparent, var(--silver-dim), var(--silver-line-strong), var(--silver-dim), transparent);
+  z-index: 2; transform: translateX(-50%);
+}
+
+/* ── Book Pages ── */
+.book-page {
+  flex: 1; padding: 28px 24px; position: relative; z-index: 1;
+}
+.book-page-left {
+  border-right: none;
+  background: linear-gradient(135deg, rgba(20,17,35,0.5), rgba(16,13,28,0.3));
+  display: flex; flex-direction: column;
+}
+.book-page-right {
+  background: linear-gradient(225deg, rgba(16,13,28,0.3), rgba(20,17,35,0.5));
+  display: flex; flex-direction: column;
+}
+
+/* ── Left Page: Spread Diagram ── */
+.book-diagram-container {
+  width: 100%; height: 280px; position: relative; margin: 8px 0;
+  background:
+    radial-gradient(circle at center, rgba(184,192,216,0.04) 0%, transparent 70%);
+}
+/* Mini card in diagram */
+.diagram-card {
+  position: absolute; width: 38px; height: 54px; border-radius: 3px;
+  border: 1px solid var(--silver-line-strong);
+  background: linear-gradient(145deg, rgba(20,17,38,0.9), rgba(12,10,22,0.9));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 0.65rem; color: var(--silver);
+  box-shadow: 0 0 8px rgba(184,192,216,0.1);
+  transition: all 0.3s ease;
+}
+/* Divider between diagram and spread info */
+.book-diagram-divider {
+  width: 60%;
+  height: 0.5px;
+  margin: 10px auto;
+  background: linear-gradient(to right, transparent, var(--silver-line), transparent);
+}
+.diagram-card .diagram-card-num {
+  font-size: 0.7rem; font-weight: 600;
+}
+.diagram-card::after {
+  content: '';
+  position: absolute; inset: 3px; border-radius: 2px;
+  border: 0.4px solid rgba(184,192,216,0.15);
+  pointer-events: none;
+}
+
+/* ── Right Page: Spread Info ── */
+.book-spread-icon {
+  font-size: 1.8rem; color: var(--silver); text-align: center; margin-bottom: 4px;
+}
+.book-spread-name {
+  font-family: var(--font-display); font-size: 1.15rem; color: var(--silver);
+  text-align: center; letter-spacing: 0.06em; margin-bottom: 1px;
+}
+.book-spread-name-zh {
+  font-family: var(--font-body); font-size: 0.95rem; color: var(--silver-dim);
+  text-align: center; margin-bottom: 10px;
+}
+.book-spread-count {
+  text-align: center; font-size: 0.8rem; color: var(--silver-pale);
+  margin-bottom: 10px; letter-spacing: 0.06em;
+}
+	.book-spread-bestfor {
+	  text-align: center; margin-bottom: 6px; display: none;
+	}
+	.book-spread-bestfor-zh {
+	  display: block; font-family: var(--font-body); font-size: 0.78rem; color: var(--silver-dim);
+	  letter-spacing: 0.04em; font-style: italic;
+	}
+	.book-spread-bestfor-en {
+	  display: block; font-family: var(--font-body); font-size: 0.82rem; color: var(--silver-pale);
+	  letter-spacing: 0.04em; opacity: 0.65;
+	}
+.book-spread-desc {
+  font-family: var(--font-body); font-size: 0.88rem; color: var(--text-dim);
+  line-height: 1.8; text-align: center; margin-bottom: 12px;
+  flex: 1; overflow-y: auto;
+}
+.book-spread-positions {
+  list-style: none; padding: 0; margin: 0;
+  flex: 1; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--silver-line) transparent;
+}
+.book-spread-positions::-webkit-scrollbar { width: 3px; }
+.book-spread-positions::-webkit-scrollbar-thumb { background: var(--silver-line); border-radius: 2px; }
+.book-position-item {
+  display: flex; align-items: baseline; gap: 6px; padding: 3px 6px;
+  font-size: 0.75rem; border-bottom: 0.4px solid rgba(184,192,216,0.06);
+  flex-wrap: wrap;
+}
+.book-position-num {
+  font-family: var(--font-display); color: var(--silver);
+  font-size: 0.68rem; min-width: 14px; text-align: right; flex-shrink: 0;
+}
+.book-position-name {
+  color: var(--text-dim); font-size: 0.75rem; flex-shrink: 0;
+  white-space: normal; max-width: 100%;
+}
+.book-position-desc {
+  color: var(--text-dim); opacity: 0.5; font-size: 0.7rem;
+  flex-basis: 100%; padding-left: 20px;
+}
+.book-position-desc-zh {
+  color: var(--text-dim); opacity: 0.4; font-size: 0.68rem;
+  flex-basis: 100%; padding-left: 20px;
+}
+
+/* ── Page Navigation ── */
+.book-page-nav {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  padding: 10px 0; border-top: 0.5px solid var(--silver-line);
+  border-bottom: 0.5px solid var(--silver-line);
+  margin: 12px 0 8px;
+}
+
+/* ── Spread Guide (category overview on left page) ── */
+.spread-guide {
+  margin-bottom: 10px; padding: 8px 10px;
+  border: 0.6px solid var(--silver-line);
+  border-radius: 6px;
+  background: rgba(184,192,216,0.02);
+}
+.spread-guide-header {
+  display: flex; align-items: center; gap: 6px;
+  padding-bottom: 6px; margin-bottom: 6px;
+  border-bottom: 0.4px solid rgba(184,192,216,0.08);
+}
+.spread-guide-icon {
+  font-size: 0.85rem; color: var(--silver);
+}
+.spread-guide-title {
+  font-family: var(--font-body); font-size: 0.78rem;
+  color: var(--silver-dim); letter-spacing: 0.04em;
+}
+.spread-guide-list {
+  display: flex; flex-direction: column; gap: 2px;
+  max-height: 100px; overflow-y: auto;
+}
+.spread-guide-item {
+  display: flex; align-items: center; gap: 6px; padding: 3px 6px;
+  border-radius: 4px; cursor: pointer; transition: all 0.2s ease;
+  font-size: 0.7rem;
+}
+.spread-guide-item:hover {
+  background: rgba(184,192,216,0.05);
+}
+.spread-guide-item.active {
+  background: rgba(184,192,216,0.08);
+  border: 0.4px solid var(--silver-line);
+}
+.spread-guide-item-icon {
+  font-size: 0.65rem; width: 16px; text-align: center; flex-shrink: 0;
+}
+.spread-guide-item-name {
+  color: var(--silver-dim); flex: 1;
+  font-family: var(--font-body);
+}
+.spread-guide-item-count {
+  color: var(--silver-pale); font-size: 0.65rem;
+  font-family: var(--font-display);
+}
+.btn-page-prev, .btn-page-next {
+  background: transparent; border: 0.8px solid var(--silver-line);
+  color: var(--silver-dim); padding: 6px 14px; border-radius: 14px;
+  font-family: var(--font-display); font-size: 0.72rem; letter-spacing: 0.06em;
+  cursor: pointer; transition: all 0.3s ease;
+}
+.btn-page-prev:hover, .btn-page-next:hover {
+  color: var(--silver-bright); border-color: var(--silver-line-strong);
+  box-shadow: 0 0 12px rgba(184,192,216,0.15);
+}
+.btn-page-prev:disabled, .btn-page-next:disabled {
+  opacity: 0.25; cursor: default; pointer-events: none;
+}
+.book-page-indicator {
+  font-family: var(--font-display); font-size: 0.72rem;
+  color: var(--silver-dim); letter-spacing: 0.08em; min-width: 40px; text-align: center;
+}
+
+/* ── Book Actions ── */
+.book-actions {
+  display: flex; gap: 10px; justify-content: center; padding: 10px 0 0;
+  border-top: 0.6px solid var(--silver-line);
+  margin-top: 6px;
+}
+.btn-book-select {
+  background: linear-gradient(135deg, rgba(184,192,216,0.15), rgba(138,146,176,0.06));
+  border: 1.2px solid var(--silver-line-strong); color: var(--silver-bright);
+  padding: 10px 28px; border-radius: 20px; font-family: var(--font-display);
+  font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer;
+  transition: all 0.3s ease; box-shadow: 0 0 16px rgba(184,192,216,0.08);
+}
+.btn-book-select:hover {
+  background: linear-gradient(135deg, rgba(184,192,216,0.25), rgba(138,146,176,0.12));
+  box-shadow: 0 0 30px rgba(184,192,216,0.25);
+  transform: translateY(-1px);
+}
+.btn-book-close {
+  background: transparent; border: 0.8px solid var(--silver-line);
+  color: var(--silver-dim); padding: 10px 20px; border-radius: 20px;
+  font-family: var(--font-display); font-size: 0.8rem; letter-spacing: 0.08em;
+  cursor: pointer; transition: all 0.3s ease;
+}
+.btn-book-close:hover { color: var(--silver-bright); border-color: var(--silver-line-strong); }
+
+/* ========================================
+   Stardust Transition — 星光粒子过渡
+   ======================================== */
+
+.stardust-particle {
+  position: fixed; pointer-events: none; z-index: 300;
+  border-radius: 50%;
+  animation: stardustFade 0.7s ease-out forwards;
+}
+@keyframes stardustFade {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--sdx), var(--sdy)) scale(0.2); }
+}
+
+/* ── Page Transition Enhancement ── */
+.page.stardust-exit {
+  animation: stardustExit 0.35s ease-in forwards;
+}
+@keyframes stardustExit {
+  to { opacity: 0; transform: translateY(-8px) scale(0.96); filter: blur(4px); }
+}
+.page.stardust-enter {
+  animation: stardustEnter 0.45s ease-out forwards;
+}
+@keyframes stardustEnter {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* ========================================
+   Responsive — Book & Compass
+   ======================================== */
+@media (max-width: 700px) {
+  .book-container {
+    flex-direction: column; width: min(400px, 94vw); max-height: 85vh; overflow-y: auto;
+  }
+  .book-spine { display: none; }
+  .book-page { padding: 20px 16px; }
+  .book-page-left {
+    border-bottom: 0.6px dashed var(--silver-line);
+    border-right: none; flex: 0 0 auto;
+  }
+  .book-page-right { flex: 1; }
+  .book-diagram-container { height: 200px; }
+  .book-spread-positions { max-height: 120px; }
+  .book-modal::before { display: none; }
+  .book-spread-desc { max-height: 120px; }
+  .confirm-dialog-card { padding: 20px 24px; max-width: 300px; }
+  .compass-wrapper {
+    --compass-size: min(420px, 66vw);
+    width: var(--compass-size); height: var(--compass-size);
+  }
+  .compass-cat-medallion { width: 42px; height: 42px; }
+  .compass-cat-icon { font-size: 0.5rem; }
+  .compass-cat-line { font-size: 0.5rem; }
+  .compass-center { width: 54px; height: 54px; }
+  .compass-center-symbol { font-size: 1.2rem; }
+  .compass-medallion-layer { inset: 44px; }
+  .compass-ring-4 { inset: 38px; }
+  .compass-ring-4b { inset: 44px; }
+  .compass-ring-4c { inset: 48px; }
+  .compass-rete { inset: 6px; opacity: 0.25; }
+  .compass-ring-5 { inset: 52px; }
+  .diagram-card { width: 30px; height: 44px; }
+}
+
+@media (max-width: 420px) {
+  .compass-wrapper {
+    --compass-size: min(340px, 72vw);
+    width: var(--compass-size); height: var(--compass-size);
+  }
+  .compass-medallion-layer { inset: 38px; }
+  .compass-ring-3 { inset: 30px; }
+  .compass-ring-4 { inset: 32px; }
+  .compass-ring-4b { inset: 36px; }
+  .compass-ring-4c { inset: 40px; }
+  .compass-rete { inset: 6px; opacity: 0.2; }
+  .compass-ring-5 { inset: 46px; }
+  .compass-cat-medallion { width: 34px; height: 34px; }
+  .compass-cat-icon { font-size: 0.45rem; }
+  .compass-cat-line { font-size: 0.44rem; }
+  .compass-center { width: 44px; height: 44px; }
+  .compass-center-symbol { font-size: 1rem; }
+  .compass-ring-1 { inset: 12px; }
+  .compass-ring-2 { inset: 22px; }
+  .compass-ring-3 { inset: 30px; }
+  .compass-ring-0::before { opacity: 0.4; }
+  .compass-ring-0::after { opacity: 0.5; }
+  .compass-heraldry { font-size: 0.4rem; }
+  .compass-heraldry-n, .compass-heraldry-e,
+  .compass-heraldry-s, .compass-heraldry-w { font-size: 0.5rem; }
+  .diagram-card { width: 28px; height: 40px; }
+  .diagram-card .diagram-card-num { font-size: 0.55rem; }
+}
+
+/* --- Circle Prose — 牌圈散文引导 --- */
+.circle-prose {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  text-align: center;
+  max-width: 620px;
+  width: 90%;
+  pointer-events: none;
+  animation: circleProseIn 2s ease-out both;
+}
+.circle-prose .prose-en {
+  font-family: 'Cormorant Garamond', 'EB Garamond', 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: rgba(200, 190, 220, 0.65);
+  line-height: 1.85;
+  margin-bottom: 10px;
+  letter-spacing: 0.03em;
+}
+.circle-prose .prose-zh {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.9rem;
+  color: rgba(180, 170, 200, 0.5);
+  line-height: 1.9;
+  letter-spacing: 0.05em;
+}
+.circle-prose .prose-divider {
+  margin: 14px auto;
+  color: rgba(200, 190, 220, 0.3);
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+}
+@keyframes circleProseIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* --- Daily Prose — 每日一牌散文引导 --- */
+.daily-prose {
+  text-align: center;
+  max-width: 560px;
+  margin: 24px auto 12px;
+  padding: 0 16px;
+}
+.daily-prose-en {
+  font-family: 'Cormorant Garamond', 'EB Garamond', 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--text-primary);
+  opacity: 0.65;
+  line-height: 1.85;
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
+}
+.daily-prose-divider {
+  margin: 10px auto;
+  color: var(--text-dim);
+  opacity: 0.35;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-align: center;
+}
+.daily-prose-zh {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  opacity: 0.55;
+  line-height: 1.9;
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════
+   LANGUAGE TOGGLE — CSS-based
+   Default: lang-zh (Chinese only)
+   Toggle: lang-en (English only)
+   Remove both classes for bilingual
+   ═══════════════════════════════════════════ */
+body.lang-zh .reading-prose,
+body.lang-zh .reading-insight,
+body.lang-zh .reading-question-en,
+body.lang-zh .narrative-text,
+body.lang-zh .guidance-item,
+body.lang-zh .timing-text,
+body.lang-zh .element-summary,
+body.lang-zh .card-reading-context-insight-en,
+body.lang-zh .card-reading-context,
+body.lang-zh .reading-plain-summary .reading-prose,
+body.lang-zh .reading-plain-summary .plain-summary-label-en,
+body.lang-zh .reading-plain-advice .reading-prose { display: none; }
+
+body.lang-en .reading-prose-zh,
+body.lang-en .reading-insight-zh,
+body.lang-en .reading-question-zh,
+body.lang-en .narrative-text-zh,
+body.lang-en .guidance-item-zh,
+body.lang-en .timing-text-zh,
+body.lang-en .element-summary-zh,
+body.lang-en .card-reading-context-insight,
+body.lang-en .reading-plain-summary .reading-prose-zh,
+body.lang-en .reading-plain-summary .plain-summary-label-zh,
+body.lang-en .reading-plain-advice .reading-prose-zh { display: none; }
+
+/* Language toggle button */
+.lang-toggle-btn {
+  display: inline-block; margin-left: 10px; padding: 2px 12px;
+  font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.08em;
+  color: var(--text-dim); background: rgba(160,170,210,0.08);
+  border: 0.5px solid rgba(160,170,210,0.2); border-radius: 20px;
+  cursor: pointer; transition: all 0.3s ease; vertical-align: middle;
+}
+.lang-toggle-btn:hover { color: var(--text-accent); border-color: rgba(160,170,210,0.4); }
+.lang-toggle-btn.active { color: var(--text-accent); background: rgba(160,170,210,0.15); }
